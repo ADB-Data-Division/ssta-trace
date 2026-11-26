@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Project board · Super-resolution workshop</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.project { border: 2px solid var(--card-edge); border-radius: 12px; background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; scroll-margin-top: 16px; }
+.project:target, .project.mine { border-color: var(--brand); }
+.project:target { box-shadow: 0 0 0 4px var(--wash); }
+.project h2 { font-size: 1.25rem; overflow-wrap: anywhere; }
+.project dl { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.project dt { font: 700 .8rem var(--head); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.project dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.team { display: flex; flex-wrap: wrap; gap: 6px; }
+.member { background: var(--wash-soft); border: 1px solid var(--wash); border-radius: 999px; padding: 2px 10px; font-size: .92rem; overflow-wrap: anywhere; }
+.member.me { background: var(--model-fill); border-color: var(--model); }
+.member small { color: var(--muted); }
+.project .foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 2px; }
+.project .foot .sp { flex: 1; }
+.empty { border: 2px dashed var(--card-edge); border-radius: 12px; padding: 22px; color: var(--muted); text-align: center; }
+.ideas-list { display: flex; flex-direction: column; gap: 6px; max-height: 190px; overflow-y: auto; border: 2px solid var(--line); border-radius: 8px; padding: 6px; }
+.ideas-list button { text-align: left; font-weight: 400; border: 0; background: var(--note-yellow); border-radius: 4px; padding: 6px 10px; display: block; }
+.memberlist { display: flex; flex-direction: column; gap: 6px; }
+.memberlist div { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header class="top" data-root="../" data-page="projects"></header>
+<main class="wrap">
+  <div class="stack">
+    <div class="eyebrow"><b>Mini hackathon</b> · From ideas to projects</div>
+    <h1>Project board</h1>
+    <p class="lead">Turn an idea into a project: say what you want to find out, where, and what you need. Then others can join your team.</p>
+  </div>
+  <div class="row spread">
+    <div class="row">
+      <button class="go" type="button" id="new">+ Start a project</button>
+      <a class="btn" id="ideasLink" href="../ideas/">Look at the ideas board</a>
+      <a class="btn" id="formLink" target="_blank" rel="noopener" hidden>Sign-up form (contact details)</a>
+    </div>
+    <span class="status" id="status">Connecting…</span>
+  </div>
+  <div class="projects" id="list" aria-live="polite"></div>
+  <p class="small" id="privacy">Everyone with the link can read this board, so it only shows a name and an affiliation for each team member. Projects and names are stored in a Google Sheet of the workshop team. Do not enter confidential information.</p>
+</main>
+
+<dialog id="pDlg"><form id="pForm" autocomplete="off">
+  <h2 id="pTitle">Start a project</h2>
+  <div class="stack" id="fromBox" hidden>
+    <span class="small">Start from an idea on the board (click one), or write your own below.</span>
+    <div class="ideas-list" id="fromList"></div>
+  </div>
+  <label>Project name<input id="fTitle" maxlength="100" required placeholder="e.g. New houses on protected farmland"></label>
+  <label>What do you want to find out or decide? <textarea id="fWhat" maxlength="1000" rows="4" required placeholder="The decision the image should support, what the image must show, and how you would know it worked."></textarea></label>
+  <label>Where? <span class="hint">place or area, and dates if they matter</span><input id="fWhere" maxlength="250" placeholder="e.g. Science City of Muñoz, Nueva Ecija, dry season 2026"></label>
+  <label>What do you need? <span class="hint">people, skills, data</span><textarea id="fNeed" maxlength="500" rows="2" placeholder="e.g. Someone who knows QGIS; the farmland zoning map"></textarea></label>
+  <label>Link <span class="hint">optional: slides, notebook, shared folder</span><input id="fLink" type="url" maxlength="400" placeholder="https://"></label>
+  <div class="fields" id="leadFields">
+    <label>Your name<input id="fName" maxlength="60" required></label>
+    <label>Your affiliation<input id="fOrg" maxlength="100" required placeholder="agency or organisation"></label>
+  </div>
+  <div class="stack" id="membersBox" hidden><span class="small">Team members</span><div class="memberlist" id="membersEdit"></div></div>
+  <div class="actions">
+    <button type="button" id="pDelete" hidden style="margin-right:auto;color:var(--bad)">Remove project</button>
+    <button type="button" id="pCancel">Cancel</button><button class="go" type="submit">Save</button>
+  </div>
+</form></dialog>
+
+<dialog id="jDlg"><form id="jForm" autocomplete="off">
+  <h2 id="jTitle">Join the project</h2>
+  <div class="stack" id="jAsk">
+    <div class="fields">
+      <label>Your name<input id="jName" maxlength="60" required></label>
+      <label>Your affiliation<input id="jOrg" maxlength="100" required placeholder="agency or organisation"></label>
+    </div>
+    <p class="small">Your name and affiliation appear on the board for everyone with the link. No email address is asked for here.</p>
+    <div class="actions"><button type="button" id="jCancel">Cancel</button><button class="go" type="submit">Join</button></div>
+  </div>
+  <div class="stack" id="jDone" hidden>
+    <div class="ok-box" id="jDoneText"></div>
+    <div class="stack" id="jFormBox" hidden>
+      <p>So the team can reach you, leave your email address in the sign-up form. It goes to a Google Sheet of the workshop team, not to this page.</p>
+      <div class="row"><a class="btn go" id="jFormLink" target="_blank" rel="noopener">Open the sign-up form</a></div>
+    </div>
+    <div class="actions"><button type="button" id="jClose">Done</button></div>
+  </div>
+</form></dialog>
+
+<footer class="foot"></footer>
+<script src="../config.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/board.js"></script>
+<script>
+let board = { notes: [], groups: [], projects: [], projectOfNote: new Map() }, editing = null, fromNote = "", joining = null, loaded = false;
+const params = new URLSearchParams(location.search), keep = location.search.match(/[?&]s=[\w-]+/), sQuery = keep ? "?" + keep[0].slice(1) : "";
+$("ideasLink").href = "../ideas/" + sQuery;
+const FORM = safeUrl(SIGNUP_FORM);
+function formUrl(project, name, org) {      // fills PROJECT, NAME and AFFILIATION of a pre-filled Google Forms link
+  const u = new URL(FORM), fill = { PROJECT: project, NAME: name, AFFILIATION: org };
+  for (const [k, v] of [...u.searchParams]) if (v in fill) u.searchParams.set(k, fill[v] || "");
+  return u.href;
+}
+if (FORM) { $("formLink").hidden = false; $("formLink").href = formUrl("", remember("ssta-person"), remember("ssta-org")); }
+
+const log = openLog(BOARD_SESSION, (events, state) => {
+  board = replay(events);
+  const st = $("status");
+  st.className = "status " + (state === "off" ? "off" : "live");
+  st.textContent = state === "local" ? "Not shared: this board is only stored in your browser" : state === "off" ? "No connection to the shared board. Retrying…"
+    : `Live · ${board.projects.length} project${board.projects.length === 1 ? "" : "s"}`;
+  render();
+  if (!loaded && (state !== "off")) { loaded = true; firstLoad(); }
+});
+
+function firstLoad() {
+  const from = params.get("from");
+  if (from) {
+    const made = board.projectOfNote.get(from), note = board.notes.find(x => x.n === from);
+    if (made) location.hash = "p-" + made.p; else if (note) openProject(null, note);
+  } else if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+}
+
+function myMember(p) { return [...p.members.values()].find(m => m.by === DEVICE); }
+
+function render() {
+  const list = $("list");
+  if (!board.projects.length) { list.replaceChildren(el("div", { class: "empty", style: "grid-column:1/-1", text: "No projects yet. Start the first one." })); return; }
+  list.replaceChildren(...board.projects.slice().sort((a, b) => a.order - b.order).map(p => {
+    const me = myMember(p), link = safeUrl(p.link), members = [...p.members.values()];
+    return el("article", { class: "project" + (me ? " mine" : ""), id: "p-" + p.p },
+      el("h2", { text: p.title }),
+      el("dl", null,
+        el("div", null, el("dt", { text: "What we want to find out" }), el("dd", { text: p.what })),
+        p.where ? el("div", null, el("dt", { text: "Where" }), el("dd", { text: p.where })) : null,
+        p.need ? el("div", null, el("dt", { text: "What we need" }), el("dd", { text: p.need })) : null,
+        link ? el("div", null, el("dt", { text: "Link" }), el("dd", null, el("a", { href: link, target: "_blank", rel: "noopener", text: link.replace(/^https?:\/\//, "").slice(0, 60) }))) : null,
+        el("div", null, el("dt", { text: `Team (${members.length})` }),
+          el("dd", { class: "team" }, members.length ? members.map(m => el("span", { class: "member" + (m.by === DEVICE ? " me" : "") }, m.name, m.org ? el("small", { text: " · " + m.org }) : null))
+            : el("span", { class: "muted", text: "Nobody yet" })))),
+      el("div", { class: "foot" },
+        me ? el("button", { type: "button", text: "Leave", onclick: () => { if (confirm(`Leave “${p.title}”?`)) log.add("proj.leave", { p: p.p, m: me.m }); } })
+           : el("button", { type: "button", class: "go", text: "Join this project", onclick: () => openJoin(p) }),
+        el("span", { class: "sp" }),
+        el("button", { type: "button", class: "quiet", text: "Edit", onclick: () => openProject(p) })));
+  }));
+}
+
+// ---- start or edit a project
+function openProject(p, note) {
+  editing = p || null; fromNote = note ? note.n : "";
+  $("pTitle").textContent = p ? "Edit the project" : "Start a project";
+  $("fTitle").value = p ? p.title : note ? note.text.split("\n")[0].slice(0, 100) : "";
+  $("fWhat").value = p ? p.what : note ? note.text : "";
+  $("fWhere").value = p ? p.where : ""; $("fNeed").value = p ? p.need : ""; $("fLink").value = p ? p.link : "";
+  $("leadFields").hidden = !!p; $("fName").required = $("fOrg").required = !p;
+  $("fName").value = remember("ssta-person"); $("fOrg").value = remember("ssta-org");
+  $("pDelete").hidden = !p;
+  const free = p || note ? [] : board.notes.filter(x => !board.projectOfNote.has(x.n)).sort((a, b) => b.votes.size - a.votes.size).slice(0, 30);
+  $("fromBox").hidden = !free.length;
+  $("fromList").replaceChildren(...free.map(x => el("button", { type: "button", text: (x.votes.size ? `▲ ${x.votes.size}  ` : "") + x.text, onclick: () => {
+    fromNote = x.n; $("fTitle").value = x.text.split("\n")[0].slice(0, 100); $("fWhat").value = x.text; $("fTitle").focus(); } })));
+  $("membersBox").hidden = !p || !p.members.size;
+  if (p) $("membersEdit").replaceChildren(...[...p.members.values()].map(m => { const row = el("div", null, el("span", { text: m.name + (m.org ? " · " + m.org : "") }),
+    el("button", { type: "button", class: "small-btn", text: "Remove", onclick: () => { if (confirm(`Remove ${m.name} from the team?`)) { log.add("proj.leave", { p: p.p, m: m.m }); row.remove(); } } })); return row; }));
+  $("pDlg").showModal(); $("fTitle").focus();
+}
+$("new").onclick = () => openProject(null);
+$("pCancel").onclick = () => $("pDlg").close();
+$("pDelete").onclick = () => { if (editing && confirm(`Remove the project “${editing.title}” for everyone?`)) { log.add("proj.del", { p: editing.p }); $("pDlg").close(); } };
+$("pForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = { title: $("fTitle").value.trim(), what: $("fWhat").value.trim(), where: $("fWhere").value.trim(), need: $("fNeed").value.trim(), link: safeUrl($("fLink").value) };
+  if (!f.title || !f.what) return;
+  if (editing) log.add("proj.edit", { p: editing.p, ...f });
+  else {
+    const p = newId(), name = $("fName").value.trim(), org = $("fOrg").value.trim();
+    remember("ssta-person", name); remember("ssta-org", org);
+    log.add("proj.add", { p, ...f, from: fromNote });
+    log.add("proj.join", { p, m: newId(), name, org });
+    $("pDlg").close();
+    showJoined({ p, title: f.title }, name, org, true);
+    return;
+  }
+  $("pDlg").close();
+});
+
+// ---- join
+function openJoin(p) {
+  joining = p; $("jTitle").textContent = `Join “${p.title}”`;
+  $("jAsk").hidden = false; $("jDone").hidden = true;
+  $("jName").required = $("jOrg").required = true;
+  $("jName").value = remember("ssta-person"); $("jOrg").value = remember("ssta-org");
+  $("jDlg").showModal(); $("jName").focus();
+}
+function showJoined(p, name, org, started) {
+  $("jTitle").textContent = started ? "Your project is on the board" : "You are on the team";
+  $("jAsk").hidden = true; $("jDone").hidden = false; $("jName").required = $("jOrg").required = false;
+  $("jDoneText").textContent = started ? `“${p.title}” is on the board, with you as its first team member.` : `You joined “${p.title}”.`;
+  $("jFormBox").hidden = !FORM;
+  if (FORM) { $("jFormLink").href = formUrl(p.title, name, org); $("formLink").href = formUrl("", name, org); }
+  if (!$("jDlg").open) $("jDlg").showModal();
+}
+$("jCancel").onclick = $("jClose").onclick = () => $("jDlg").close();
+$("jForm").addEventListener("submit", e => {
+  e.preventDefault();
+  if (!joining) return;
+  const name = $("jName").value.trim(), org = $("jOrg").value.trim();
+  if (!name || !org) return;
+  remember("ssta-person", name); remember("ssta-org", org);
+  log.add("proj.join", { p: joining.p, m: newId(), name, org });
+  showJoined(joining, name, org, false);
+});
+</script>
+</body>
+</html>

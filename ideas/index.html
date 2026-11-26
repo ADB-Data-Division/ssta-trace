@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ideas board · Super-resolution workshop</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.composer { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
+.composer .side { display: flex; flex-direction: column; gap: 10px; min-width: 190px; }
+.dots { display: flex; gap: 8px; }
+.dots button { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2px solid var(--card-edge); }
+.dots button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+.group { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+.group.over { border-color: var(--brand); background: var(--wash-soft); }
+.group > header { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.group > header h2 { font-size: 1.2rem; }
+.group > header .count { color: var(--muted); font-size: .9rem; }
+.group > header .tools { margin-left: auto; display: flex; gap: 4px; }
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; min-height: 48px; }
+.wall:empty::after { content: "No notes here yet."; color: var(--muted); font-size: .92rem; align-self: center; }
+.sticky { position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 150px; padding: 12px 12px 8px; border-radius: 3px;
+  background: var(--note-yellow); box-shadow: 0 2px 5px rgba(0,0,0,.22); min-width: 0; }
+.sticky[draggable="true"] { cursor: grab; }
+.sticky.dragging { opacity: .45; }
+.sticky.pending { opacity: .75; }
+.sticky .text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.05rem; line-height: 1.3; flex: 1; }
+.sticky .who { font-size: .82rem; color: rgba(0,0,0,.6); }
+.sticky .foot { display: flex; align-items: center; gap: 4px; margin: 0 -4px; }
+.sticky .foot button { border: 0; background: rgba(255,255,255,.55); padding: 3px 9px; font-size: .9rem; border-radius: 999px; }
+.sticky .foot button.on { background: var(--ink); color: #fff; }
+.sticky .foot .sp { flex: 1; }
+.sticky .proj { font-size: .85rem; font-weight: 700; }
+.menu { position: relative; }
+.menu > summary { list-style: none; cursor: pointer; border-radius: 999px; background: rgba(255,255,255,.55); padding: 3px 10px; font-weight: 700; font-size: .9rem; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu .pop { position: absolute; right: 0; bottom: calc(100% + 4px); z-index: 5; background: #fff; border: 2px solid var(--card-edge); border-radius: 10px;
+  padding: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 190px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+.menu .pop button, .menu .pop a { border: 0; background: none; text-align: left; padding: 7px 10px; font: 400 .95rem var(--body); border-radius: 6px; color: var(--ink); text-decoration: none; display: block; width: 100%; cursor: pointer; }
+.menu .pop button:hover, .menu .pop a:hover { background: var(--wash-soft); }
+.menu .pop .sep { border-top: 1px solid var(--line); margin: 4px 0; }
+.menu .pop .lab { font-size: .78rem; color: var(--muted); padding: 4px 10px 0; }
+body.big .sticky .text { font-size: 1.3rem; }
+body.big .wall { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+@media (max-width: 640px) { .composer { grid-template-columns: 1fr; } .wall { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+</style>
+</head>
+<body>
+<header class="top" data-root="../" data-page="ideas"></header>
+<main class="wrap">
+  <div class="stack">
+    <div class="eyebrow"><b>Mini hackathon</b> · Topic brainstorming</div>
+    <h1>Ideas board</h1>
+    <p class="lead">Which decision in your office could a sharper satellite image help with? Write one idea per note. Vote for the ideas you would like to work on, then turn the best ones into projects.</p>
+  </div>
+
+  <form class="panel blue" id="composer" autocomplete="off">
+    <div class="composer">
+      <label>Your idea
+        <textarea id="text" maxlength="240" rows="3" placeholder="e.g. Find new houses on protected farmland before the yearly field visit" required></textarea>
+      </label>
+      <div class="side">
+        <label>Your name <span class="hint">optional, shown on the note</span>
+          <input id="name" maxlength="40" placeholder="e.g. Ana, DHSUD">
+        </label>
+        <div class="row spread">
+          <div class="dots" id="dots" role="group" aria-label="Note colour"></div>
+          <button class="go" type="submit">Add note</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="row spread">
+    <div class="row">
+      <button type="button" id="addGroup">+ Add a group</button>
+      <label class="check"><input type="checkbox" id="byVotes"> Most votes first</label>
+      <label class="check"><input type="checkbox" id="big"> Large text</label>
+    </div>
+    <span class="status" id="status">Connecting…</span>
+  </div>
+
+  <div class="stack" id="board" aria-live="polite"></div>
+
+  <p class="small">Everyone with the link can add, move and remove notes: please treat it like a whiteboard in the room. Notes are stored in a Google Sheet of the workshop team. Do not write confidential or personal information on a note. On a computer you can drag a note into another group; on a phone use the note's “⋯” menu.</p>
+</main>
+
+<dialog id="dlg"><form method="dialog" id="dlgForm">
+  <h2 id="dlgTitle"></h2>
+  <label id="dlgLabel"><span id="dlgLabelText"></span><textarea id="dlgText" maxlength="240" rows="4"></textarea><input id="dlgInput" maxlength="60"></label>
+  <div class="actions"><button type="button" id="dlgCancel">Cancel</button><button class="go" type="submit" id="dlgOk">Save</button></div>
+</form></dialog>
+
+<footer class="foot"></footer>
+<script src="../config.js"></script>
+<script src="../assets/site.js"></script>
+<script src="../assets/board.js"></script>
+<script>
+const COLORS = ["yellow", "green", "blue", "pink", "orange"];
+let color = remember("ssta-note-color") || "yellow", board = { notes: [], groups: [], projects: [], projectOfNote: new Map() }, pendingIds = new Set(), openMenu = null;
+const keep = location.search.match(/[?&]s=[\w-]+/), sQuery = keep ? "?" + keep[0].slice(1) : "";
+
+for (const c of COLORS) $("dots").append(el("button", { type: "button", title: c, "aria-label": c + " note", "aria-pressed": String(c === color),
+  style: `background:var(--note-${c})`, onclick: e => { color = c; remember("ssta-note-color", c);
+    for (const b of $("dots").children) b.setAttribute("aria-pressed", String(b === e.currentTarget)); } }));
+$("name").value = remember("ssta-name");
+$("big").checked = remember("ssta-big") === "1"; document.body.classList.toggle("big", $("big").checked);
+$("big").onchange = () => { remember("ssta-big", $("big").checked ? "1" : "0"); document.body.classList.toggle("big", $("big").checked); };
+$("byVotes").onchange = () => render();
+
+const log = openLog(BOARD_SESSION, (events, state) => {
+  board = replay(events);
+  pendingIds = new Set(events.filter(ev => !ev.t && state !== "local").map(ev => ev.n).filter(Boolean));
+  const st = $("status");
+  st.className = "status " + (state === "off" ? "off" : "live");
+  st.textContent = state === "local" ? "Not shared: this board is only stored in your browser" : state === "off" ? "No connection to the shared board. Retrying…"
+    : `Live · ${board.notes.length} note${board.notes.length === 1 ? "" : "s"}`;
+  if (!openMenu && !document.querySelector(".dragging")) render();
+});
+
+$("composer").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = $("text").value.trim(); if (!text) return;
+  remember("ssta-name", $("name").value.trim());
+  log.add("note.add", { n: newId(), text, color, name: $("name").value.trim(), g: NEW_GROUP });
+  $("text").value = ""; $("text").focus();
+});
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("composer").requestSubmit(); });
+
+// One small dialog for every question: edit a note (long text) or name a group (short text).
+function ask(title, label, value, long) {
+  return new Promise(done => {
+    const dlg = $("dlg"), field = long ? $("dlgText") : $("dlgInput");
+    $("dlgTitle").textContent = title; $("dlgLabelText").textContent = label;
+    $("dlgText").hidden = !long; $("dlgInput").hidden = long; field.value = value || "";
+    const finish = v => { dlg.close(); $("dlgForm").onsubmit = null; done(v); };
+    $("dlgForm").onsubmit = e => { e.preventDefault(); finish(field.value.trim()); };
+    $("dlgCancel").onclick = () => finish(null);
+    dlg.oncancel = () => { $("dlgForm").onsubmit = null; done(null); };
+    dlg.showModal(); field.focus(); field.select();
+  });
+}
+$("addGroup").onclick = async () => {
+  const title = await ask("Add a group", "Name of the group, e.g. a theme", "", false);
+  if (title) log.add("group.add", { g: newId(), title });
+};
+
+function closeMenu() { if (openMenu) { openMenu.open = false; openMenu = null; render(); } }
+document.addEventListener("click", e => { if (openMenu && !openMenu.contains(e.target)) closeMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+
+function sticky(x) {
+  const mine = x.votes.has(DEVICE), p = board.projectOfNote.get(x.n);
+  const act = fn => () => { openMenu = null; fn(); render(); };
+  const pop = el("div", { class: "pop" },
+    el("button", { type: "button", text: "Edit the text", onclick: act(async () => { const t = await ask("Edit the note", "Text", x.text, true); if (t) log.add("note.edit", { n: x.n, text: t }); }) }),
+    p ? null : el("a", { href: `../projects/${sQuery}${sQuery ? "&" : "?"}from=${encodeURIComponent(x.n)}`, text: "Make it a project →" }),
+    el("div", { class: "sep" }), el("div", { class: "lab", text: "Colour" }),
+    el("div", { class: "dots", style: "padding:4px 10px" }, COLORS.map(c => el("button", { type: "button", title: c, "aria-label": c, style: `background:var(--note-${c});width:24px;height:24px`,
+      onclick: act(() => log.add("note.edit", { n: x.n, color: c })) }))),
+    board.groups.length > 1 ? [el("div", { class: "sep" }), el("div", { class: "lab", text: "Move to" }),
+      board.groups.filter(g => g.g !== x.g).map(g => el("button", { type: "button", text: g.title, onclick: act(() => log.add("note.edit", { n: x.n, g: g.g })) }))] : null,
+    el("div", { class: "sep" }),
+    el("button", { type: "button", text: "Remove the note", onclick: act(() => { if (confirm("Remove this note for everyone?")) log.add("note.del", { n: x.n }); }) }));
+  const menu = el("details", { class: "menu", ontoggle: e => { if (e.currentTarget.open) openMenu = e.currentTarget; else if (openMenu === e.currentTarget) openMenu = null; } },
+    el("summary", { "aria-label": "More actions for this note", text: "⋯" }), pop);
+  const card = el("div", { class: "sticky" + (pendingIds.has(x.n) ? " pending" : ""), style: `background:var(--note-${COLORS.includes(x.color) ? x.color : "yellow"})`, draggable: "true", dataset: { n: x.n } },
+    el("div", { class: "text", text: x.text }),
+    x.name ? el("div", { class: "who", text: x.name }) : null,
+    p ? el("a", { class: "proj", href: `../projects/${sQuery}#p-${p.p}`, text: `Project: ${p.title} →` }) : null,
+    el("div", { class: "foot" },
+      el("button", { type: "button", class: mine ? "on" : "", "aria-pressed": String(mine), title: mine ? "Take back your vote" : "Vote for this idea",
+        text: `▲ ${x.votes.size}`, onclick: () => log.add("note.vote", { n: x.n, on: !mine }) }),
+      el("span", { class: "sp" }), menu));
+  card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", x.n); e.dataTransfer.effectAllowed = "move"; card.classList.add("dragging"); });
+  card.addEventListener("dragend", () => { card.classList.remove("dragging"); render(); });
+  return card;
+}
+
+function render() {
+  const byVotes = $("byVotes").checked, root = $("board"), y = window.scrollY;
+  root.replaceChildren(...board.groups.map(g => {
+    const notes = board.notes.filter(x => x.g === g.g).sort((a, b) => byVotes ? (b.votes.size - a.votes.size) || (a.order - b.order) : a.order - b.order);
+    const sec = el("section", { class: "group", dataset: { g: g.g } },
+      el("header", null, el("h2", { text: g.title }), el("span", { class: "count", text: `${notes.length} note${notes.length === 1 ? "" : "s"}` }),
+        g.g === NEW_GROUP ? null : el("span", { class: "tools" },
+          el("button", { type: "button", class: "quiet", text: "Rename", onclick: async () => { const t = await ask("Rename the group", "Name", g.title, false); if (t) log.add("group.edit", { g: g.g, title: t }); } }),
+          el("button", { type: "button", class: "quiet", text: "Remove", onclick: () => { if (confirm(`Remove the group “${g.title}”? Its notes go back to “New ideas”.`)) log.add("group.del", { g: g.g }); } }))),
+      el("div", { class: "wall" }, notes.map(sticky)));
+    sec.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; sec.classList.add("over"); });
+    sec.addEventListener("dragleave", e => { if (!sec.contains(e.relatedTarget)) sec.classList.remove("over"); });
+    sec.addEventListener("drop", e => { e.preventDefault(); sec.classList.remove("over");
+      const n = e.dataTransfer.getData("text/plain"), x = board.notes.find(v => v.n === n);
+      if (x && x.g !== g.g) log.add("note.edit", { n, g: g.g }); });
+    return sec;
+  }));
+  window.scrollTo(0, y);
+}
+</script>
+</body>
+</html>

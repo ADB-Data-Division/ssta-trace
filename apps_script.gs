@@ -1,5 +1,6 @@
 /**
- * Results store for "Trace the roads" (SSTA Workshop 3).
+ * Results store for "Trace the roads" (SSTA Workshop 3). The ideas board and the project board of the site use
+ * the same web app: each of their actions is one row, in a session whose name starts with "board-".
  * Set-up: open a new Google Sheet > Extensions > Apps Script, replace the code with this file, Save,
  * then Deploy > New deployment > type "Web app", Execute as: Me, Who has access: Anyone > Deploy.
  * Copy the web-app URL (ends in /exec) into config.js (ENDPOINT).

@@ -3,155 +3,219 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Trace the Roads · SSTA Workshop 3</title>
+<title>Super-resolution workshop · SSTA</title>
+<meta name="description" content="Links for the workshop on super-resolution satellite imagery, 26–27 November 2026: ideas board, project board, image tool, notebooks, exercises, office hours and questions.">
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
-<link rel="stylesheet" href="style.css">
-<style>body { margin: 0; }</style>
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.hero { background: var(--wash); border-radius: 14px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px; }
+.hero h1 { font-size: 2.2rem; }
+.steps-row { counter-reset: st; }
+#hackathon .tiles { grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); }
+.steps-row .tile h3::before { counter-increment: st; content: counter(st); display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 8px;
+  border-radius: 50%; background: var(--brand); color: #fff; font-size: .9rem; vertical-align: 2px; }
+section { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 12px; }
+@media (max-width: 560px) { .hero h1 { font-size: 1.7rem; } }
+</style>
 </head>
 <body>
-<div class="wrap">
-  <section id="intro">
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="eyebrow"><b>SSTA Workshop 3</b> · Super-resolution use cases · Metro Manila</div>
-      <h1>Trace the roads you can see</h1>
-      <p>You get two satellite images of residential neighbourhoods in Metro Manila, each 500 m across. Draw a straight line along every road you can make out: press, drag and let go. Then we compare your lines with the real road map.</p>
-      <ol class="steps">
-        <li><span><b>Image 1:</b> 60 seconds. Draw a line along each road. For a bend, start a new line where the last one ended: it snaps on.</span></li>
-        <li><span><b>Image 2:</b> another 60 seconds, a different neighbourhood.</span></li>
-        <li><span><b>Your score:</b> how many of the roads you found on each image. Your lines are added, without your name, to the room's results.</span></li>
-      </ol>
-      <div class="stage s2" style="max-width:320px"><img id="introImg" alt="Example: a Sentinel-2 image of Metro Manila, enlarged"></div>
-      <div class="bar"><button class="go" id="start">Start tracing</button><span class="muted">Lines don't have to be perfect. You can stop early with Done.</span></div>
+<header class="top" data-root="" data-page="home"></header>
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow"><b>TA workshop</b> · 26–27 November 2026 · ADB headquarters and online</div>
+    <h1>Super-resolution satellite imagery: everything in one place</h1>
+    <p class="lead">Links for the workshop and the mini hackathon: the boards, the image tool, the notebooks, the exercises, office hours and answers to common questions.</p>
+  </div>
+
+  <section id="hackathon">
+    <h2>Mini hackathon</h2>
+    <p class="muted">Day 2. From an idea to a project to your own super-resolved image.</p>
+    <div class="tiles steps-row">
+      <a class="tile main" href="ideas/" data-keep>
+        <span class="tag">Brainstorming</span>
+        <h3>Ideas board</h3>
+        <span>Sticky notes for everyone: which decision in your office could a sharper satellite image help with? Add ideas and vote.</span>
+        <span class="go">Open the board →</span>
+      </a>
+      <a class="tile main" href="projects/" data-keep>
+        <span class="tag">Teams</span>
+        <h3>Project board</h3>
+        <span>Turn an idea into a project with a goal, a place and what you need. Join a project with your name and affiliation.</span>
+        <span class="go">Open the projects →</span>
+      </a>
+      <a class="tile main" href="sr/">
+        <span class="tag">No coding</span>
+        <h3>Make an image</h3>
+        <span>Choose a place and a date, and get the super-resolved image: to look at, for slides, for QGIS or for a Python notebook.</span>
+        <span class="go">Open the image tool →</span>
+      </a>
+    </div>
+    <div class="tiles">
+      <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/hackathon/scenario/hackathon_scenario.ipynb" target="_blank" rel="noopener">
+        <span class="tag grey">Opens Google Colab</span>
+        <h3>Your scenario</h3>
+        <span>The hackathon notebook: is super-resolution a fit for your decision? Step by step, no coding.</span>
+        <span class="go">Open the notebook →</span>
+      </a>
+      <a class="tile" href="https://github.com/adb-sr/sr-client/blob/main/notebooks/hackathon/README.md" target="_blank" rel="noopener">
+        <span class="tag grey">Guide</span>
+        <h3>How the hackathon works</h3>
+        <span>The steps, team roles, the slide, and three tasks with measured results: informal settlements, land cover, field boundaries.</span>
+        <span class="go">Read the guide →</span>
+      </a>
     </div>
   </section>
 
-  <section id="trace" hidden>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="tag"><strong id="tStep">Image 1 of 2</strong><span class="chip" id="tChip"></span></div>
-      <div class="stage" id="tStage"><img id="tImg" alt=""><canvas id="tCan" width="600" height="600" aria-label="Drawing area: press, drag and release to draw a straight line along a road"></canvas>
-        <div class="scale"><i></i><span>100 m</span></div></div>
-      <div class="bar">
-        <div class="timer"><div class="track"><b id="tBar"></b></div><span id="tSec">60 s</span></div>
-        <button id="undo">Undo</button><button id="clear">Clear</button><button class="go" id="done">Done</button>
-      </div>
+  <section id="office-hours">
+    <h2>Office hours</h2>
+    <div class="panel" id="ohPanel">
+      <p id="ohText">A standing meeting where you can bring questions about your project, the images or the service.</p>
+      <div class="row"><a class="btn go" id="ohLink" target="_blank" rel="noopener" hidden>Join the office hours meeting</a>
+        <span class="tag grey" id="ohSoon">The meeting link follows</span><b id="ohWhen"></b></div>
     </div>
   </section>
 
-  <section id="result" hidden>
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="eyebrow"><b>Your score</b></div>
-      <h2 id="rHead"></h2>
-      <div class="cards">
-        <div class="card s2"><span class="chip s2" style="align-self:flex-start">Sentinel-2 · 10 m</span><span class="big" id="rBlur"></span><span>of the roads found</span><span class="muted" id="rBlurP"></span></div>
-        <div class="card sr"><span class="chip sr" style="align-self:flex-start">Super-resolved · 2.5 m</span><span class="big" id="rSharp"></span><span>of the roads found</span><span class="muted" id="rSharpP"></span></div>
-      </div>
-      <p>Both images come from the same free Sentinel-2 satellite. The second was super-resolved by our model before you traced it. Below, your lines are drawn on a real high-resolution image of each neighbourhood.</p>
-      <div class="legend"><span style="--c:var(--yours)">your lines</span><span style="--c:var(--found)">roads you found</span><span style="--c:var(--missed)">roads you missed</span></div>
-      <div class="pair">
-        <figure><div class="stage real"><img id="rImg0" alt=""><canvas id="rCan0" width="600" height="600"></canvas></div><figcaption id="rCap0"></figcaption></figure>
-        <figure><div class="stage real"><img id="rImg1" alt=""><canvas id="rCan1" width="600" height="600"></canvas></div><figcaption id="rCap1"></figcaption></figure>
-      </div>
-      <p class="small" id="sent"></p>
-      <p class="small">A road counts as found when one of your lines runs within 12 m of it. Driveways and footpaths are left out. Roads: © OpenStreetMap contributors. Real images: Google satellite imagery, averaged to 2.5 m. Sentinel-2: contains modified Copernicus Sentinel data 2025.</p>
-      <div class="bar"><button id="again">Trace again</button></div>
+  <section id="materials">
+    <h2>Workshop materials</h2>
+    <div class="tiles">
+      <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/demo1_super_resolution.ipynb" target="_blank" rel="noopener">
+        <span class="tag grey">Day 1 · Opens Google Colab</span>
+        <h3>Practical demonstration 1</h3>
+        <span>The super-resolution service, part by part: the Sentinel-2 inputs, stage 1, stage 2 and one experiment. You need your email address.</span>
+        <span class="go">Open the notebook →</span>
+      </a>
+      <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/demo2_use_cases.ipynb" target="_blank" rel="noopener">
+        <span class="tag grey">Day 1 · Opens Google Colab</span>
+        <h3>Practical demonstration 2</h3>
+        <span>From images to maps: building and road maps from Sentinel-2, stage 1 and stage 2, scored against public maps.</span>
+        <span class="go">Open the notebook →</span>
+      </a>
+      <a class="tile" href="exercises/" data-keep>
+        <span class="tag grey">Day 1</span>
+        <h3>Exercises</h3>
+        <span>Trace the roads you can see on a Sentinel-2 image and on a super-resolved image.</span>
+        <span class="go">Open the exercises →</span>
+      </a>
+      <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/workshop.ipynb" target="_blank" rel="noopener">
+        <span class="tag grey">For people who code</span>
+        <h3>The Python client</h3>
+        <span>A short tour in Colab: estimate, submit, open and download the results.</span>
+        <span class="go">Open the notebook →</span>
+      </a>
+      <a class="tile" href="https://github.com/adb-sr/sr-client" target="_blank" rel="noopener">
+        <span class="tag grey">GitHub</span>
+        <h3>Client and all notebooks</h3>
+        <span>The Python client of the service, its documentation and every notebook of the workshop.</span>
+        <span class="go">Open the repository →</span>
+      </a>
+      <a class="tile" id="keyLink" href="#" target="_blank" rel="noopener">
+        <span class="tag grey">Service</span>
+        <h3>Your key for the service</h3>
+        <span>Only needed for your own code: enter your email address and the key appears on the page. The image tool and the notebooks do this for you.</span>
+        <span class="go">Get the key →</span>
+      </a>
     </div>
   </section>
-</div>
-<script src="areas.js"></script>
+
+  <section id="faq">
+    <h2>Questions and answers</h2>
+    <div class="faq">
+      <details><summary>What do I get from the service?</summary><div class="a">
+        <p>You choose a place and a date. The service finds clear Sentinel-2 images (10 m pixels) from around that date and makes a super-resolved image with 2.5 m pixels, in red, green, blue and near-infrared.</p>
+        <ul><li><b>Stage 1</b> combines up to 8 Sentinel-2 images of the same place into one sharper image.</li>
+          <li><b>Stage 2</b> refines the stage 1 image with a diffusion model. It looks sharper, and more of its fine detail is generated by the model.</li></ul>
+      </div></details>
+      <details><summary>Do I need to write code?</summary><div class="a">
+        <p>No. <a href="sr/">Make an image</a> runs in the browser. The notebooks run in Google Colab with nothing to install: you run the cells from top to bottom. If you do code, the <a href="https://github.com/adb-sr/sr-client" target="_blank" rel="noopener">Python client</a> gives you the same service in a few lines.</p>
+      </div></details>
+      <details><summary>How do I get access, and how long does it last?</summary><div class="a">
+        <p>Type your email address on the <a href="sr/">Make an image</a> page or in a notebook. The service makes a key for that address, and the same address always gets the same key back. Nothing is sent to your inbox.</p>
+        <p>A workshop key allows areas up to 5 km × 5 km and has a budget of USD 3. Keys from the workshop sign-up stop working on 28 November 2026 at 08:00 Manila time. If you want to continue after that, come to the <a href="#office-hours">office hours</a>.</p>
+      </div></details>
+      <details><summary>How large can the area be, how long does it take and what does it cost?</summary><div class="a">
+        <div class="scroll-x"><table class="plain">
+          <tr><th>Area</th><th>Time, both stages</th><th>From your budget</th></tr>
+          <tr><td>2 km × 2 km</td><td>about 2 to 6 minutes</td><td>about USD 0.10</td></tr>
+          <tr><td>5 km × 5 km (the largest)</td><td>about 6 to 8 minutes</td><td>about USD 0.35</td></tr>
+        </table></div>
+        <p>Stage 1 alone is faster and costs much less. “Check first” on the image page shows the cost for your area before anything runs, and that check is free. If someone made the same image with the same settings in the last three days, you get it at once and it costs nothing. The ready-made areas work this way.</p>
+      </div></details>
+      <details><summary>Is the detail in the image real?</summary><div class="a">
+        <p>Not all of it. Stage 1 is built from several real Sentinel-2 images of the place. Stage 2 adds detail that looks plausible for this kind of place: the outline of a large building is usually right, the texture of a roof may be invented.</p>
+        <p>So treat fine detail as a good guess, not a measurement. Before a decision depends on it, test the images for your task against a real high-resolution image or a field visit. Where you need measured values, for example a vegetation index, use stage 1 or the Sentinel-2 image.</p>
+      </div></details>
+      <details><summary>Which files do I get, and which one do I use?</summary><div class="a">
+        <div class="scroll-x"><table class="plain">
+          <tr><th>For</th><th>File</th><th>What it is</th></tr>
+          <tr><td>Slides, documents</td><td><code>stage2_preview.png</code>, <code>stage1_preview.png</code></td><td>Colour picture, ready to paste</td></tr>
+          <tr><td>QGIS, GIS, analysis</td><td><code>stage2_sr.tif</code>, <code>stage1_sr.tif</code></td><td>GeoTIFF with red, green, blue and near-infrared at 2.5 m, as reflectance × 10000</td></tr>
+          <tr><td>Comparison</td><td><code>lr_reference.tif</code></td><td>The Sentinel-2 input (10 m) on the same grid</td></tr>
+          <tr><td>Quality check</td><td><code>validity.tif</code></td><td>0 no data · 1 valid · 2 fewer than 4 different clear images</td></tr>
+          <tr><td>More bands</td><td><code>bands20_sr.tif</code></td><td>Red-edge and short-wave infrared bands at 2.5 m</td></tr>
+          <tr><td>Record</td><td><code>manifest.json</code></td><td>The Sentinel-2 images used, the settings, the cost and the warnings</td></tr>
+        </table></div>
+        <p>Files are kept for 30 days. A download link works for 7 days; open the image again on the image page to get fresh links.</p>
+      </div></details>
+      <details><summary>How do I open the image in QGIS?</summary><div class="a">
+        <ol><li>On the image page, download <code>stage2_sr.tif</code> (or copy its link).</li>
+          <li>Drag the file into QGIS. For a link: Layer → Add Layer → Add Raster Layer, source type “Protocol: HTTP(S)”, paste the link.</li>
+          <li>If the image looks dark: Layer Properties → Symbology, set Min 0 and Max 3000 for the red, green and blue band. Bands 1 to 4 are red, green, blue and near-infrared.</li></ol>
+      </div></details>
+      <details><summary>How do I use the image in a Python notebook?</summary><div class="a">
+        <p>The image page shows these lines with your own image filled in:</p>
+        <pre>!pip install -q "sr-client[geo,viz] @ git+https://github.com/adb-sr/sr-client"
+from sr_client import SRClient
+sr = SRClient("srk_...", url="<span class="svc"></span>")
+job = sr.job("the id of your image")
+image = job.open("stage2_sr.tif")     # xarray, reflectance 0 to 1
+job.download("results/")              # all files</pre>
+      </div></details>
+      <details><summary>What do the warnings mean?</summary><div class="a">
+        <p>A warning never stops an image. It tells you where to look twice.</p>
+        <ul><li><b>water</b>: much of the area is water. Super-resolution removes detail in shallow water, so use the Sentinel-2 image there.</li>
+          <li><b>low_diversity</b>: fewer than 4 different clear Sentinel-2 images were found for part of the area. The result can be less sharp there. A longer search period or a higher cloud limit helps.</li>
+          <li><b>nodata</b>: part of the area has no clear image and stays empty.</li>
+          <li><b>haze</b>: the Sentinel-2 images look hazy. Try another date.</li>
+          <li><b>missing_tiles</b>: part of the area could not be processed. Run it again.</li></ul>
+      </div></details>
+      <details><summary>May I use the images in a report or a presentation?</summary><div class="a">
+        <p>Yes. Say that it is a super-resolved (AI-enhanced) Sentinel-2 image, so that nobody takes it for a real high-resolution photo, and add the credit “Contains modified Copernicus Sentinel data” with the year of the image.</p>
+      </div></details>
+      <details><summary>A page or a notebook does not load on my office network. What now?</summary><div class="a">
+        <p>Some office networks block this site, Google Colab or the image service. Try mobile data or another network. The tracing exercise also exists <a href="exercises/">as a Colab notebook</a>. If nothing works, follow on a teammate's screen and tell the workshop team.</p>
+      </div></details>
+      <details><summary>What happens to what I type on these pages?</summary><div class="a">
+        <ul><li><b>Ideas and projects</b> (text, name, affiliation) are stored in a Google Sheet of the workshop team, and everyone with the link can read them on the boards.</li>
+          <li><b>Your email address</b> on the image page goes only to the image service, which stores it with your key. Your key is kept in your own browser.</li>
+          <li><b>The tracing exercise</b> stores your lines and scores without a name.</li></ul>
+      </div></details>
+      <details><summary>Who do I ask?</summary><div class="a">
+        <p id="contact">Ask the workshop team in the room or in the meeting chat, or come to the <a href="#office-hours">office hours</a>.</p>
+      </div></details>
+    </div>
+  </section>
+</main>
+<footer class="foot"></footer>
 <script src="config.js"></script>
-<script src="score.js"></script>
+<script src="assets/site.js"></script>
 <script>
-const SECONDS = 60, SNAP = 14, MINLEN = 6;
-let plan, cur, strokes = [], active = null, timer, left = 0, results, attempt = 0;
-const $ = id => document.getElementById(id);
-$("introImg").src = AREAS.A.img.blurry;
-let uid; try { uid = localStorage.getItem("ssta-uid"); if (!uid) { uid = Math.random().toString(36).slice(2, 10); localStorage.setItem("ssta-uid", uid); } } catch (e) { uid = Math.random().toString(36).slice(2, 10); }
-
-function newPlan() {
-  const first = Math.random() < 0.5 ? "A" : "B";
-  return [{ area: first, kind: "blurry" }, { area: first === "A" ? "B" : "A", kind: "sharp" }];
+// keep a rehearsal session (?s=name) on the links to the boards and exercises
+const keep = location.search.match(/[?&]s=[\w-]+/);
+if (keep) for (const a of document.querySelectorAll("a[data-keep]")) a.href += "?" + keep[0].slice(1);
+// links that come from config.js
+$("keyLink").href = SR_SERVICE + "/signup";
+for (const s of document.querySelectorAll(".svc")) s.textContent = SR_SERVICE;
+const oh = safeUrl(OFFICE_HOURS.url);
+if (oh) { $("ohLink").href = oh; $("ohLink").hidden = false; $("ohSoon").hidden = true; }
+if (OFFICE_HOURS.when) $("ohWhen").textContent = OFFICE_HOURS.when;
+if (CONTACT.email || CONTACT.name) {
+  const p = $("contact"); p.append(" You can also write to ");
+  p.append(CONTACT.email ? el("a", { href: "mailto:" + CONTACT.email, text: CONTACT.name || CONTACT.email }) : CONTACT.name, ".");
 }
-function show(id) { for (const s of ["intro", "trace", "result"]) $(s).hidden = s !== id; window.scrollTo(0, 0); }
-function begin(i) {
-  cur = i; strokes = []; active = null;
-  const p = plan[i], s2 = p.kind === "blurry";
-  $("tStep").textContent = `Image ${i + 1} of 2`;
-  $("tChip").textContent = s2 ? "Sentinel-2 · 10 m pixels, enlarged" : "Super-resolved · 2.5 m pixels";
-  $("tChip").className = "chip " + (s2 ? "s2" : "sr");
-  $("tStage").className = "stage " + (s2 ? "s2" : "sr");
-  $("tImg").src = AREAS[p.area].img[p.kind]; $("tImg").alt = $("tChip").textContent;
-  redraw(); left = SECONDS; tick();
-  clearInterval(timer); timer = setInterval(() => { left -= 1; tick(); if (left <= 0) finish(); }, 1000);
-  show("trace");
-}
-function tick() { $("tSec").textContent = `${Math.max(left, 0)} s`; $("tBar").style.width = `${100 * Math.max(left, 0) / SECONDS}%`; }
-function finish() {
-  clearInterval(timer);
-  if (active) { if (Math.hypot(active[1][0] - active[0][0], active[1][1] - active[0][1]) >= MINLEN) strokes.push(active); active = null; }
-  plan[cur].strokes = strokes;
-  if (cur === 0) begin(1); else score();
-}
-// Straight lines: press = start, drag = preview, release = end. Ends snap to the ends of earlier lines.
-const can = $("tCan"), ctx = can.getContext("2d");
-function pos(e) { const r = can.getBoundingClientRect(); return [(e.clientX - r.left) * 600 / r.width, (e.clientY - r.top) * 600 / r.height]; }
-const clampP = p => [Math.min(600, Math.max(0, p[0])), Math.min(600, Math.max(0, p[1]))];
-function snap(p) {
-  let best = null, bd = SNAP;
-  for (const s of strokes) for (const q of s) { const d = Math.hypot(p[0] - q[0], p[1] - q[1]); if (d < bd) { bd = d; best = q; } }
-  return best ? [best[0], best[1]] : p;
-}
-can.addEventListener("pointerdown", e => { if (left <= 0) return; e.preventDefault(); can.setPointerCapture(e.pointerId);
-  const p = snap(clampP(pos(e))); active = [p, p]; redraw(); });
-can.addEventListener("pointermove", e => { if (!active) return; active[1] = clampP(pos(e)); redraw(); });
-can.addEventListener("pointerup", () => { if (!active) return; const end = snap(active[1]);
-  if (Math.hypot(end[0] - active[0][0], end[1] - active[0][1]) >= MINLEN) strokes.push([active[0], end]);
-  active = null; redraw(); });
-can.addEventListener("pointercancel", () => { active = null; redraw(); });
-function redraw() {
-  ctx.clearRect(0, 0, 600, 600);
-  const all = strokes.concat(active ? [active] : []);
-  for (const s of all) { polyline(ctx, s, "rgba(0,0,0,.6)", 8); polyline(ctx, s, css("--trace"), 4); }
-  ctx.fillStyle = css("--trace"); ctx.strokeStyle = "rgba(0,0,0,.6)"; ctx.lineWidth = 2;
-  for (const s of all) for (const q of s) { ctx.beginPath(); ctx.arc(q[0], q[1], 5, 0, 7); ctx.fill(); ctx.stroke(); }
-}
-$("undo").onclick = () => { strokes.pop(); redraw(); };
-$("clear").onclick = () => { strokes = []; redraw(); };
-$("done").onclick = finish;
-$("start").onclick = $("again").onclick = () => { plan = newPlan(); attempt += 1; begin(0); };
-
-function send(rs) {
-  if (!ENDPOINT) { $("sent").textContent = ""; return; }
-  const body = JSON.stringify({ session: SESSION, id: uid, attempt, plan: rs.map(r => ({ area: r.area, kind: r.kind,
-    recall: +r.recall.toFixed(4), precision: r.precision === null ? null : +r.precision.toFixed(4),
-    lines: r.strokes.map(s => s.flat().map(Math.round)) })) });
-  $("sent").textContent = "Sending your lines to the room…";
-  const go = k => fetch(ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body, keepalive: true })
-    .then(() => { $("sent").textContent = "Your lines were added to the room's results."; })
-    .catch(() => { if (k < 3) setTimeout(() => go(k + 1), 2000 * (k + 1)); else $("sent").textContent = "Could not reach the results board. Your score above still counts."; });
-  go(0);
-}
-function score() {
-  results = plan.map(p => ({ ...p, ...evaluate(p.area, p.strokes) }));
-  const [b, s] = results;
-  $("rBlur").textContent = pct(b.recall); $("rSharp").textContent = pct(s.recall);
-  const prec = r => r.precision === null ? "You drew no lines." : `${pct(r.precision)} of your lines were on a real road.`;
-  $("rBlurP").textContent = prec(b); $("rSharpP").textContent = prec(s);
-  const ratio = b.recall > 0.005 ? s.recall / b.recall : null;
-  $("rHead").textContent = s.recall > b.recall
-    ? (ratio && ratio >= 1.5 ? `You found ${ratio.toFixed(1)} times as many roads on the super-resolved image` : "You found more roads on the super-resolved image")
-    : "You found as many roads on the blurry image. Try again, slowly?";
-  results.forEach((r, i) => {
-    $("rImg" + i).src = AREAS[r.area].img.real; $("rImg" + i).alt = "Real high-resolution image of the same neighbourhood";
-    $("rCap" + i).innerHTML = `<b>Traced on ${r.kind === "blurry" ? "Sentinel-2" : "the super-resolved image"}</b> · drawn on the real image`;
-    const c = $("rCan" + i).getContext("2d"); c.clearRect(0, 0, 600, 600);
-    const shown = r.segs.filter(([, , ok, m]) => m || ok);   // outlines first, then colours, so the pieces join up
-    for (const [p, q, ok] of shown) polyline(c, [p, q], "rgba(0,0,0,.45)", ok ? 9 : 5);
-    for (const [p, q, ok] of shown) polyline(c, [p, q], ok ? css("--found") : css("--missed"), ok ? 6 : 3);
-    for (const st of r.strokes) { polyline(c, st, "rgba(0,0,0,.6)", 5); polyline(c, st, css("--yours"), 2.5); }
-  });
-  show("result"); send(results);
-}
+// open the answer a link points to
+if (location.hash === "#faq") document.getElementById("faq").scrollIntoView();
 </script>
 </body>
 </html>
