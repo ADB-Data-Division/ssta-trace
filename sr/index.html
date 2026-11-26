@@ -3,46 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Make an image · Super-resolution workshop</title>
+<title>Super-resolution service · Super-resolution workshop</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/vendor/leaflet.css">
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="sr.css">
 </head>
 <body>
 <header class="top" data-root="../" data-page="sr"></header>
-<main class="wrap">
-  <div class="stack">
-    <div class="eyebrow"><b>Super-resolution service</b> · no coding needed</div>
-    <h1>Make an image</h1>
-    <p class="lead">Choose a place and a date. The service finds clear Sentinel-2 images and makes a super-resolved image with 2.5 m pixels, which you can look at here, put on a slide, or open in QGIS or a Python notebook.</p>
-  </div>
 
+<!-- service bar: name, tabs, account -->
+<div class="svc">
+  <div class="in">
+    <div class="svc-name"><span class="svc-mark"><i data-icon="image"></i></span><div><b>Super-resolution service</b><small>Sentinel-2 at 10 m → 2.5 m</small></div></div>
+    <nav class="tabs" id="tabs" aria-label="Service" hidden>
+      <a href="#new" id="tNew" aria-current="page"><i data-icon="plus"></i>New image</a>
+      <a href="#jobs" id="tJobs"><i data-icon="grid"></i>My images <span class="count" id="tCount" hidden></span></a>
+    </nav>
+    <div class="acct" id="acct" hidden>
+      <div class="budget" title="What is left of your budget for new images">
+        <div class="budget-line"><span id="aLeft"></span><small id="aOf"></small></div>
+        <div class="meter"><i id="aMeter"></i></div>
+      </div>
+      <details class="who" id="aMenu">
+        <summary aria-label="Account"><span class="avatar" id="aAvatar"></span></summary>
+        <div class="who-pop">
+          <b id="aMail"></b>
+          <small id="aLimits"></small>
+          <small id="aExpires"></small>
+          <div class="sep"></div>
+          <button type="button" class="quiet" id="cCopy"><i data-icon="key"></i>Copy my key</button>
+          <button type="button" class="quiet" id="cLeave"><i data-icon="out"></i>Disconnect</button>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
   <!-- connect -->
-  <section class="panel blue" id="connect">
-    <div id="cOut" class="stack">
-      <h2>Connect with your email address</h2>
-      <form class="row" id="cForm" autocomplete="on">
-        <input id="cEmail" type="text" inputmode="email" autocomplete="email" placeholder="you@example.org" aria-label="Email address, or a key that starts with srk_" style="flex:1 1 260px" required>
+  <section id="signin" class="signin">
+    <div class="panel signin-card">
+      <span class="svc-mark big"><i data-icon="image"></i></span>
+      <h1>Make a super-resolved image</h1>
+      <p class="lead">Choose a place and a date. The service finds clear Sentinel-2 images and makes an image with 2.5 m pixels: to compare here, to put on a slide, or to open in QGIS or a Python notebook.</p>
+      <form id="cForm" class="stack" autocomplete="on">
+        <label>Email address
+          <input id="cEmail" type="text" inputmode="email" autocomplete="email" placeholder="you@example.org" aria-label="Email address, or a key that starts with srk_" required>
+        </label>
         <button class="go" type="submit" id="cGo">Connect</button>
+        <div class="bad-box" id="cErr" hidden role="alert"></div>
       </form>
       <p class="small">Your address goes only to the image service, which gives you a personal key (the same address always gets the same key). Nothing is sent to your inbox. If you were given a key that starts with <code>srk_</code>, type it instead.</p>
-      <div class="bad-box" id="cErr" hidden role="alert"></div>
-    </div>
-    <div id="cIn" class="row spread" hidden>
-      <span id="cWho"></span>
-      <span class="row"><button type="button" class="small-btn" id="cCopy">Copy my key</button><button type="button" class="small-btn" id="cLeave">Disconnect</button></span>
     </div>
   </section>
 
-  <div id="app" class="stack" style="gap:22px" hidden>
-    <!-- 1 where -->
-    <section class="panel" id="where">
-      <h2><span class="num">1</span>Where</h2>
-      <div class="split">
-        <div class="stack">
+  <div id="app" hidden>
+    <!-- ============================================================ new image -->
+    <section id="vNew" class="newgrid">
+      <div class="stack formcol">
+        <div class="panel" id="where">
+          <h2><span class="num">1</span>Area</h2>
           <label>Place
             <select id="pReady"></select>
           </label>
@@ -61,96 +85,143 @@
             <input id="pKm" type="range" min="0.5" max="5" step="0.5" value="2">
           </label>
         </div>
-        <div id="map" aria-label="Map of the chosen area. Click to move the area."></div>
+
+        <div class="panel" id="when">
+          <h2><span class="num">2</span>Date</h2>
+          <label>Target date <span class="hint">the image is built from clear Sentinel-2 images around this date</span>
+            <input id="dDate" type="date" min="2017-01-01" required>
+          </label>
+        </div>
+
+        <div class="panel" id="what">
+          <h2><span class="num">3</span>Processing</h2>
+          <div class="choices" role="radiogroup" aria-label="Stages">
+            <label class="choice"><input type="radio" name="stages" value="12" checked><span><b>Stage 1 and stage 2</b><small>The sharpest image. Stage 2 refines stage 1 and generates fine detail.</small></span></label>
+            <label class="choice"><input type="radio" name="stages" value="1"><span><b>Stage 1 only</b><small>Faster and cheaper. Stays closest to the Sentinel-2 images. You can add stage 2 later.</small></span></label>
+          </div>
+          <div id="strengthBox" class="stack">
+            <b class="sub">Stage 2 strength</b>
+            <div class="choices three" role="radiogroup" aria-label="Stage 2 strength">
+              <label class="choice"><input type="radio" name="strength" value="100"><span><b>Light</b><small>Changes stage 1 the least.</small></span></label>
+              <label class="choice"><input type="radio" name="strength" value="250" checked><span><b>Standard</b><small>The setting of the model.</small></span></label>
+              <label class="choice"><input type="radio" name="strength" value="500"><span><b>Strong</b><small>Most generated detail. Costs twice as much.</small></span></label>
+            </div>
+          </div>
+          <details id="more">
+            <summary>Advanced options</summary>
+            <div class="fields" style="margin-top:14px">
+              <label>Search before the date <span class="hint">days, 0 to 365</span><input id="oBefore" type="number" min="0" max="365" step="1" value="45"></label>
+              <label>Search after the date <span class="hint">days, 0 to 365</span><input id="oAfter" type="number" min="0" max="365" step="1" value="45"></label>
+              <label>Cloud limit <span class="hint">% of a Sentinel-2 image, 1 to 100</span><input id="oCloud" type="number" min="1" max="100" step="1" value="40"></label>
+              <label>Clear share <span class="hint">% of each tile that must be clear, 0 to 100</span><input id="oClear" type="number" min="0" max="100" step="5" value="70"></label>
+              <label>Different images needed <span class="hint">per tile, 1 to 8; tiles with fewer stay empty</span><input id="oRevisits" type="number" min="1" max="8" step="1" value="1"></label>
+              <label>Stage 2 noise level (tau) <span class="hint">10 to 1000; light 100, standard 250, strong 500</span><input id="oTau" type="number" min="10" max="1000" step="1" value="250"></label>
+              <label>Stage 2 steps (nfe) <span class="hint">10 up to tau; empty = same as tau. Cost grows with the steps.</span><input id="oNfe" type="number" min="10" max="1000" step="1" placeholder="same as tau"></label>
+              <label>Random seed <span class="hint">another seed gives another version of the generated detail</span><input id="oSeed" type="number" min="0" max="2147483647" step="1" value="0"></label>
+            </div>
+            <div class="stack" style="margin-top:14px">
+              <label class="check"><input type="checkbox" id="oBands" checked> Also make the red-edge and short-wave infrared bands at 2.5 m (<code>bands20_sr.tif</code>)</label>
+              <label class="check"><input type="checkbox" id="oCache" checked> Use an image that was already made with the same settings, if there is one (free and at once)</label>
+              <div><button type="button" class="small-btn" id="oReset">Back to the standard settings</button></div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="stack sidecol">
+        <div class="panel mapcard"><div id="map" aria-label="Map of the chosen area. Click to move the area."></div></div>
+        <div class="panel" id="summary">
+          <h2>Your request</h2>
+          <dl class="kv" id="sumKv"></dl>
+          <div id="est" class="stack" aria-live="polite"></div>
+          <button type="button" class="go big" id="make"><i data-icon="spark"></i>Make the image</button>
+          <p class="small" id="makeNote">Checking is free. Your budget is only used when a new image is made.</p>
+        </div>
       </div>
     </section>
 
-    <!-- 2 when -->
-    <section class="panel" id="when">
-      <h2><span class="num">2</span>When</h2>
-      <div class="fields">
-        <label>Date <span class="hint">the image is built from clear Sentinel-2 images around this date</span>
-          <input id="dDate" type="date" min="2017-01-01" required>
-        </label>
-        <p class="small" style="align-self:end">Dates in the dry season have more cloud-free images. “Check first” shows which images the service finds.</p>
-      </div>
+    <!-- ============================================================ my images -->
+    <section id="vJobs" class="stack" hidden>
+      <div class="row spread"><h1>My images</h1><button type="button" class="small-btn" id="mRefresh"><i data-icon="refresh"></i>Refresh</button></div>
+      <div class="panel flush"><div id="mList"></div></div>
+      <p class="small">Images and their files stay available for 30 days.</p>
     </section>
 
-    <!-- 3 what -->
-    <section class="panel" id="what">
-      <h2><span class="num">3</span>What</h2>
-      <div class="choices" role="radiogroup" aria-label="Stages">
-        <label class="choice"><input type="radio" name="stages" value="12" checked><span><b>Stage 1 and stage 2</b><small>The sharpest image. Stage 2 refines stage 1 and generates fine detail.</small></span></label>
-        <label class="choice"><input type="radio" name="stages" value="1"><span><b>Stage 1 only</b><small>Faster and cheaper. Stays closest to the Sentinel-2 images. You can add stage 2 later.</small></span></label>
-      </div>
-      <div id="strengthBox" class="stack">
-        <b>Stage 2 strength</b>
-        <div class="choices three" role="radiogroup" aria-label="Stage 2 strength">
-          <label class="choice"><input type="radio" name="strength" value="100"><span><b>Light</b><small>Changes stage 1 the least.</small></span></label>
-          <label class="choice"><input type="radio" name="strength" value="250" checked><span><b>Standard</b><small>The setting of the model.</small></span></label>
-          <label class="choice"><input type="radio" name="strength" value="500"><span><b>Strong</b><small>Sharpest, with the most generated detail. Costs twice as much.</small></span></label>
+    <!-- ============================================================ one image -->
+    <section id="vJob" class="stack" style="gap:18px" hidden>
+      <a href="#jobs" class="backlink"><i data-icon="back"></i>My images</a>
+      <div class="jobhead">
+        <div class="stack" style="gap:6px;min-width:0">
+          <div class="row" style="gap:12px"><h1 id="jTitle">Your image</h1><span class="chip" id="jStatus"></span></div>
+          <p class="muted" id="jSummary"></p>
+        </div>
+        <div class="row">
+          <button type="button" id="jCancel" hidden>Cancel</button>
+          <button type="button" class="go" id="jUpgrade" hidden><i data-icon="spark"></i>Add stage 2</button>
+          <button type="button" id="jAgain" title="Fill the form with the settings of this image"><i data-icon="copy"></i>Use these settings</button>
         </div>
       </div>
-      <details id="more">
-        <summary>More options</summary>
-        <div class="fields" style="margin-top:12px">
-          <label>Search before the date <span class="hint">days, 0 to 365</span><input id="oBefore" type="number" min="0" max="365" step="1" value="45"></label>
-          <label>Search after the date <span class="hint">days, 0 to 365</span><input id="oAfter" type="number" min="0" max="365" step="1" value="45"></label>
-          <label>Cloud limit <span class="hint">% of a Sentinel-2 image, 1 to 100</span><input id="oCloud" type="number" min="1" max="100" step="1" value="40"></label>
-          <label>Clear share <span class="hint">% of each tile that must be clear, 0 to 100</span><input id="oClear" type="number" min="0" max="100" step="5" value="70"></label>
-          <label>Different images needed <span class="hint">per tile, 1 to 8; tiles with fewer stay empty</span><input id="oRevisits" type="number" min="1" max="8" step="1" value="1"></label>
-          <label>Stage 2 noise level (tau) <span class="hint">10 to 1000; light 100, standard 250, strong 500</span><input id="oTau" type="number" min="10" max="1000" step="1" value="250"></label>
-          <label>Stage 2 steps (nfe) <span class="hint">10 up to tau; empty = same as tau. Cost grows with the steps.</span><input id="oNfe" type="number" min="10" max="1000" step="1" placeholder="same as tau"></label>
-          <label>Random seed <span class="hint">another seed gives another version of the generated detail</span><input id="oSeed" type="number" min="0" max="2147483647" step="1" value="0"></label>
-        </div>
-        <div class="stack" style="margin-top:12px">
-          <label class="check"><input type="checkbox" id="oBands" checked> Also make the red-edge and short-wave infrared bands at 2.5 m (<code>bands20_sr.tif</code>)</label>
-          <label class="check"><input type="checkbox" id="oCache" checked> Use an image that was already made with the same settings, if there is one (free and at once)</label>
-          <div><button type="button" class="small-btn" id="oReset">Back to the standard settings</button></div>
-        </div>
-      </details>
-      <div class="row">
-        <button type="button" id="check">Check first (free)</button>
-        <button type="button" class="go" id="make">Make the image</button>
-        <span class="small" id="busy" hidden>Asking the service…</span>
-      </div>
-      <div id="est" class="stack" aria-live="polite"></div>
-    </section>
-
-    <!-- job -->
-    <section class="panel" id="job" hidden>
-      <div class="row spread">
-        <h2 id="jTitle">Your image</h2>
-        <span class="row"><span class="chip" id="jStatus"></span><button type="button" class="small-btn" id="jCancel" hidden>Cancel</button><button type="button" class="small-btn" id="jUpgrade" hidden>Add stage 2</button></span>
-      </div>
-      <p class="small" id="jSummary"></p>
       <div id="jSteps" class="steps"></div>
       <div id="jMsg" class="stack" aria-live="polite"></div>
 
-      <div id="view" class="stack" hidden>
-        <div class="row">
-          <label class="inline">Left <select id="vL"></select></label>
-          <label class="inline">Right <select id="vR"></select></label>
-          <span class="row zoom" role="group" aria-label="Zoom"><span class="small">Zoom</span>
-            <button type="button" class="small-btn" data-zoom="1" aria-pressed="true">1×</button><button type="button" class="small-btn" data-zoom="2" aria-pressed="false">2×</button><button type="button" class="small-btn" data-zoom="4" aria-pressed="false">4×</button></span>
+      <div class="jobgrid" id="jBody" hidden>
+        <div class="panel flush viewcard" id="viewCard">
+          <div class="vbar">
+            <div class="seg" role="group" aria-label="View">
+              <button type="button" id="vmCompare" aria-pressed="true">Compare</button>
+              <button type="button" id="vmSingle" aria-pressed="false">Single</button>
+            </div>
+            <label class="inline" id="vLwrap"><span id="vLname">Left</span> <select id="vL"></select></label>
+            <label class="inline" id="vRwrap">Right <select id="vR"></select></label>
+            <button type="button" class="small-btn toggle" id="vMaskBtn" aria-pressed="false" disabled title="Shows where the service had few clear Sentinel-2 images or none"><i data-icon="layers"></i>Validity mask</button>
+            <span class="sp"></span>
+            <div class="zoomer" role="group" aria-label="Zoom">
+              <button type="button" class="small-btn" id="vOut" aria-label="Zoom out"><i data-icon="minus"></i></button>
+              <button type="button" class="small-btn" id="vPct" title="Show the whole image">Fit</button>
+              <button type="button" class="small-btn" id="vIn" aria-label="Zoom in"><i data-icon="plus"></i></button>
+              <button type="button" class="small-btn" id="vFull" aria-label="Full screen" title="Full screen"><i data-icon="expand"></i></button>
+            </div>
+          </div>
+          <div class="viewer" id="viewer">
+            <div class="vworld" id="vWorld">
+              <div class="vlayer" id="vRight"></div>
+              <div class="vlayer" id="vLeft"></div>
+              <canvas class="vmask" id="vMask" hidden></canvas>
+            </div>
+            <div class="vdivider" id="vDiv" role="slider" tabindex="0" aria-label="Dividing line between the left and the right image" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="grip"><i data-icon="code"></i></span></div>
+            <span class="vtag left" id="vTagL"></span><span class="vtag right" id="vTagR"></span>
+            <div class="vscale" id="vScale"><i></i><span></span></div>
+            <div class="vlegend" id="vLegend" hidden><span><i style="background:#f6b100"></i>Few clear images</span><span><i style="background:#e5484d"></i>No data</span></div>
+            <div class="vload" id="vLoad" hidden></div>
+          </div>
+          <p class="small vnote" id="vNote"></p>
         </div>
-        <div class="viewer" id="viewer"><div class="canvas" id="vCanvas"><img id="vRight" alt=""><img id="vLeft" alt=""><div class="handle" id="vHandle"></div></div></div>
-        <input type="range" id="vSplit" min="0" max="100" value="50" step="0.5" aria-label="Move the dividing line between the left and the right image">
-        <p class="small" id="vNote"></p>
+
+        <aside class="stack side">
+          <div class="panel" id="qPanel">
+            <h2><i data-icon="check"></i>Quality</h2>
+            <div id="qCover"></div>
+            <div id="qWarn" class="stack"></div>
+          </div>
+          <div class="panel" id="iPanel">
+            <h2><i data-icon="layers"></i>Sentinel-2 inputs</h2>
+            <p class="small" id="iNote"></p>
+            <div id="iList" class="scenes"></div>
+          </div>
+        </aside>
       </div>
 
       <div id="files" class="uses" hidden>
-        <div class="use"><h3>For slides and documents</h3><p class="small">Colour pictures (PNG), ready to paste.</p><div class="stack" id="fPng"></div></div>
-        <div class="use"><h3>For QGIS and other GIS</h3><p class="small">GeoTIFF files with coordinates. Bands 1 to 4: red, green, blue, near-infrared, as reflectance × 10000. In QGIS, set Min 0 and Max 3000 if the image looks dark.</p><div class="stack" id="fTif"></div></div>
-        <div class="use"><h3>For a Python notebook</h3><p class="small">Paste into Colab or Jupyter.</p><pre id="fCode"></pre><div class="row"><button type="button" class="small-btn" id="fCopy">Copy with my key</button></div></div>
+        <div class="panel use"><h2><i data-icon="image"></i>For slides and documents</h2><p class="small">Colour pictures (PNG), ready to paste.</p><div class="stack" id="fPng"></div></div>
+        <div class="panel use"><h2><i data-icon="map"></i>For QGIS and other GIS</h2><p class="small">GeoTIFF files with coordinates. Bands 1 to 4: red, green, blue, near-infrared, as reflectance × 10000. In QGIS, set Min 0 and Max 3000 if the image looks dark.</p><div class="stack" id="fTif"></div></div>
+        <div class="panel use"><h2><i data-icon="code"></i>For a Python notebook</h2><p class="small">Paste into Colab or Jupyter.</p><pre id="fCode"></pre><div class="row"><button type="button" class="small-btn" id="fCopy"><i data-icon="copy"></i>Copy with my key</button></div></div>
       </div>
-      <p class="small" id="jCredit"></p>
-    </section>
 
-    <!-- my images -->
-    <section class="panel" id="mine">
-      <div class="row spread"><h2>My images</h2><button type="button" class="small-btn" id="mRefresh">Refresh</button></div>
-      <div id="mList" class="stack"></div>
+      <details class="panel" id="dPanel" hidden>
+        <summary><h2>Details of this image</h2></summary>
+        <dl class="kv wide" id="dKv"></dl>
+      </details>
+      <p class="small" id="jCredit"></p>
     </section>
   </div>
 </main>

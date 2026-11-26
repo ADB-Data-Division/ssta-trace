@@ -4,52 +4,74 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Super-resolution workshop · SSTA</title>
-<meta name="description" content="Links for the workshop on super-resolution satellite imagery, 26–27 November 2026: ideas board, project board, image tool, notebooks, exercises, office hours and questions.">
+<meta name="description" content="Links for the workshop on super-resolution satellite imagery, 26–27 November 2026: ideas board, project board, image service, notebooks, exercises and office hours.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <style>
-.hero { background: var(--wash); border-radius: 14px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px; }
-.hero h1 { font-size: 2.2rem; }
-.steps-row { counter-reset: st; }
-#hackathon .tiles { grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); }
-.steps-row .tile h3::before { counter-increment: st; content: counter(st); display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 8px;
-  border-radius: 50%; background: var(--brand); color: #fff; font-size: .9rem; vertical-align: 2px; }
-section { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 12px; }
-@media (max-width: 560px) { .hero h1 { font-size: 1.7rem; } }
+.hero { position: relative; overflow: hidden; border-radius: 20px; padding: 44px 40px; display: flex; flex-direction: column; gap: 14px; color: #fff;
+  background: radial-gradient(1200px 500px at 85% -20%, rgba(87, 200, 255, .55), transparent 60%), linear-gradient(135deg, #004f76 0%, #007db7 55%, #0a9bd6 100%);
+  box-shadow: var(--shadow-m); }
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px);
+  background-size: 34px 34px; mask-image: linear-gradient(100deg, transparent 35%, #000 100%); -webkit-mask-image: linear-gradient(100deg, transparent 35%, #000 100%); }
+.hero > * { position: relative; z-index: 1; }
+.hero .eyebrow, .hero .eyebrow b { color: rgba(255, 255, 255, .85); }
+.hero h1 { color: #fff; font-size: 2.5rem; max-width: 18ch; }
+.hero .lead { color: rgba(255, 255, 255, .92); max-width: 56ch; }
+.hero .row { margin-top: 8px; }
+.hero .btn { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; min-height: 42px; padding: 9px 18px; }
+.hero .btn:hover { background: rgba(255, 255, 255, .22); border-color: #fff; }
+.hero .btn.go { background: #fff; color: var(--brand-dark); border-color: #fff; }
+.hero .btn.go:hover { background: #eaf6fc; }
+section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 76px; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.sec-head p { color: var(--muted); font-size: .95rem; }
+#hackathon .tiles.steps-row { grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); counter-reset: st; }
+.steps-row .tile::before { counter-increment: st; content: "Step " counter(st); position: absolute; top: 18px; right: 18px; font: 600 .72rem var(--head);
+  letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.oh { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px 20px; }
+.oh .icon { width: 46px; height: 46px; border-radius: 12px; background: var(--wash-soft); color: var(--brand); display: grid; place-items: center; flex: none; }
+.oh .icon svg { width: 24px; height: 24px; }
+.oh .txt { flex: 1 1 320px; display: flex; flex-direction: column; gap: 3px; }
+@media (max-width: 640px) { .hero { padding: 28px 22px; border-radius: 16px; } .hero h1 { font-size: 1.8rem; } }
 </style>
 </head>
 <body>
 <header class="top" data-root="" data-page="home"></header>
 <main class="wrap">
   <div class="hero">
-    <div class="eyebrow"><b>TA workshop</b> · 26–27 November 2026 · ADB headquarters and online</div>
-    <h1>Super-resolution satellite imagery: everything in one place</h1>
-    <p class="lead">Links for the workshop and the mini hackathon: the boards, the image tool, the notebooks, the exercises, office hours and answers to common questions.</p>
+    <div class="eyebrow">TA workshop · 26–27 November 2026 · ADB headquarters and online</div>
+    <h1>Super-resolution satellite imagery</h1>
+    <p class="lead">Everything for the workshop and the mini hackathon in one place: the boards, the image service, the notebooks, the exercises and office hours.</p>
+    <div class="row">
+      <a class="btn go" href="ideas/" data-keep><i data-icon="bulb"></i>Open the ideas board</a>
+      <a class="btn" href="sr/"><i data-icon="image"></i>Make an image</a>
+    </div>
   </div>
 
   <section id="hackathon">
-    <h2>Mini hackathon</h2>
-    <p class="muted">Day 2. From an idea to a project to your own super-resolved image.</p>
+    <div class="sec-head"><h2>Mini hackathon</h2><p>Day 2. From an idea to a project to your own super-resolved image.</p></div>
     <div class="tiles steps-row">
       <a class="tile main" href="ideas/" data-keep>
-        <span class="tag">Brainstorming</span>
+        <span class="icon"><i data-icon="bulb"></i></span>
         <h3>Ideas board</h3>
-        <span>Sticky notes for everyone: which decision in your office could a sharper satellite image help with? Add ideas and vote.</span>
-        <span class="go">Open the board →</span>
+        <span>A shared whiteboard with sticky notes: which decision in your office could a sharper satellite image help with? Add ideas, move them around and vote.</span>
+        <span class="go">Open the board</span>
       </a>
       <a class="tile main" href="projects/" data-keep>
-        <span class="tag">Teams</span>
+        <span class="icon"><i data-icon="users"></i></span>
         <h3>Project board</h3>
         <span>Turn an idea into a project with a goal, a place and what you need. Join a project with your name and affiliation.</span>
-        <span class="go">Open the projects →</span>
+        <span class="go">Open the projects</span>
       </a>
       <a class="tile main" href="sr/">
-        <span class="tag">No coding</span>
+        <span class="icon"><i data-icon="image"></i></span>
         <h3>Make an image</h3>
-        <span>Choose a place and a date, and get the super-resolved image: to look at, for slides, for QGIS or for a Python notebook.</span>
-        <span class="go">Open the image tool →</span>
+        <span>Choose a place and a date and get the super-resolved image: to compare with Sentinel-2, for slides, for QGIS or for a Python notebook. No coding.</span>
+        <span class="go">Open the image service</span>
       </a>
     </div>
     <div class="tiles">
@@ -57,144 +79,81 @@ section { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 1
         <span class="tag grey">Opens Google Colab</span>
         <h3>Your scenario</h3>
         <span>The hackathon notebook: is super-resolution a fit for your decision? Step by step, no coding.</span>
-        <span class="go">Open the notebook →</span>
+        <span class="go">Open the notebook</span>
       </a>
       <a class="tile" href="https://github.com/adb-sr/sr-client/blob/main/notebooks/hackathon/README.md" target="_blank" rel="noopener">
         <span class="tag grey">Guide</span>
         <h3>How the hackathon works</h3>
         <span>The steps, team roles, the slide, and three tasks with measured results: informal settlements, land cover, field boundaries.</span>
-        <span class="go">Read the guide →</span>
+        <span class="go">Read the guide</span>
       </a>
     </div>
   </section>
 
   <section id="office-hours">
-    <h2>Office hours</h2>
-    <div class="panel" id="ohPanel">
-      <p id="ohText">A standing meeting where you can bring questions about your project, the images or the service.</p>
-      <div class="row"><a class="btn go" id="ohLink" target="_blank" rel="noopener" hidden>Join the office hours meeting</a>
-        <span class="tag grey" id="ohSoon">The meeting link follows</span><b id="ohWhen"></b></div>
+    <div class="sec-head"><h2>Office hours</h2></div>
+    <div class="panel oh">
+      <span class="icon"><i data-icon="video"></i></span>
+      <div class="txt">
+        <b id="ohWhen">Standing meeting</b>
+        <span class="muted" id="ohText">Bring questions about your project, the images or the service.</span>
+      </div>
+      <a class="btn go" id="ohLink" target="_blank" rel="noopener" hidden><i data-icon="video"></i>Join the meeting</a>
+      <span class="tag grey" id="ohSoon">The meeting link follows</span>
     </div>
   </section>
 
   <section id="materials">
-    <h2>Workshop materials</h2>
+    <div class="sec-head"><h2>Workshop materials</h2><p>The notebooks and exercises of day 1.</p></div>
     <div class="tiles">
       <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/demo1_super_resolution.ipynb" target="_blank" rel="noopener">
-        <span class="tag grey">Day 1 · Opens Google Colab</span>
+        <span class="icon"><i data-icon="notebook"></i></span>
+        <span class="tag grey">Opens Google Colab</span>
         <h3>Practical demonstration 1</h3>
         <span>The super-resolution service, part by part: the Sentinel-2 inputs, stage 1, stage 2 and one experiment. You need your email address.</span>
-        <span class="go">Open the notebook →</span>
+        <span class="go">Open the notebook</span>
       </a>
       <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/demo2_use_cases.ipynb" target="_blank" rel="noopener">
-        <span class="tag grey">Day 1 · Opens Google Colab</span>
+        <span class="icon"><i data-icon="notebook"></i></span>
+        <span class="tag grey">Opens Google Colab</span>
         <h3>Practical demonstration 2</h3>
         <span>From images to maps: building and road maps from Sentinel-2, stage 1 and stage 2, scored against public maps.</span>
-        <span class="go">Open the notebook →</span>
+        <span class="go">Open the notebook</span>
       </a>
       <a class="tile" href="exercises/" data-keep>
-        <span class="tag grey">Day 1</span>
+        <span class="icon"><i data-icon="pen"></i></span>
+        <span class="tag grey">In the browser</span>
         <h3>Exercises</h3>
         <span>Trace the roads you can see on a Sentinel-2 image and on a super-resolved image.</span>
-        <span class="go">Open the exercises →</span>
+        <span class="go">Open the exercises</span>
       </a>
       <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/workshop.ipynb" target="_blank" rel="noopener">
+        <span class="icon"><i data-icon="code"></i></span>
         <span class="tag grey">For people who code</span>
         <h3>The Python client</h3>
         <span>A short tour in Colab: estimate, submit, open and download the results.</span>
-        <span class="go">Open the notebook →</span>
+        <span class="go">Open the notebook</span>
       </a>
       <a class="tile" href="https://github.com/adb-sr/sr-client" target="_blank" rel="noopener">
+        <span class="icon"><i data-icon="book"></i></span>
         <span class="tag grey">GitHub</span>
         <h3>Client and all notebooks</h3>
         <span>The Python client of the service, its documentation and every notebook of the workshop.</span>
-        <span class="go">Open the repository →</span>
+        <span class="go">Open the repository</span>
       </a>
       <a class="tile" id="keyLink" href="#" target="_blank" rel="noopener">
+        <span class="icon"><i data-icon="key"></i></span>
         <span class="tag grey">Service</span>
         <h3>Your key for the service</h3>
-        <span>Only needed for your own code: enter your email address and the key appears on the page. The image tool and the notebooks do this for you.</span>
-        <span class="go">Get the key →</span>
+        <span>Only needed for your own code: enter your email address and the key appears on the page. The image service and the notebooks do this for you.</span>
+        <span class="go">Get the key</span>
       </a>
     </div>
   </section>
 
   <section id="faq">
-    <h2>Questions and answers</h2>
-    <div class="faq">
-      <details><summary>What do I get from the service?</summary><div class="a">
-        <p>You choose a place and a date. The service finds clear Sentinel-2 images (10 m pixels) from around that date and makes a super-resolved image with 2.5 m pixels, in red, green, blue and near-infrared.</p>
-        <ul><li><b>Stage 1</b> combines up to 8 Sentinel-2 images of the same place into one sharper image.</li>
-          <li><b>Stage 2</b> refines the stage 1 image with a diffusion model. It looks sharper, and more of its fine detail is generated by the model.</li></ul>
-      </div></details>
-      <details><summary>Do I need to write code?</summary><div class="a">
-        <p>No. <a href="sr/">Make an image</a> runs in the browser. The notebooks run in Google Colab with nothing to install: you run the cells from top to bottom. If you do code, the <a href="https://github.com/adb-sr/sr-client" target="_blank" rel="noopener">Python client</a> gives you the same service in a few lines.</p>
-      </div></details>
-      <details><summary>How do I get access, and how long does it last?</summary><div class="a">
-        <p>Type your email address on the <a href="sr/">Make an image</a> page or in a notebook. The service makes a key for that address, and the same address always gets the same key back. Nothing is sent to your inbox.</p>
-        <p>A workshop key allows areas up to 5 km × 5 km and has a budget of USD 3. Keys from the workshop sign-up stop working on 28 November 2026 at 08:00 Manila time. If you want to continue after that, come to the <a href="#office-hours">office hours</a>.</p>
-      </div></details>
-      <details><summary>How large can the area be, how long does it take and what does it cost?</summary><div class="a">
-        <div class="scroll-x"><table class="plain">
-          <tr><th>Area</th><th>Time, both stages</th><th>From your budget</th></tr>
-          <tr><td>2 km × 2 km</td><td>about 2 to 6 minutes</td><td>about USD 0.10</td></tr>
-          <tr><td>5 km × 5 km (the largest)</td><td>about 6 to 8 minutes</td><td>about USD 0.35</td></tr>
-        </table></div>
-        <p>Stage 1 alone is faster and costs much less. “Check first” on the image page shows the cost for your area before anything runs, and that check is free. If someone made the same image with the same settings in the last three days, you get it at once and it costs nothing. The ready-made areas work this way.</p>
-      </div></details>
-      <details><summary>Is the detail in the image real?</summary><div class="a">
-        <p>Not all of it. Stage 1 is built from several real Sentinel-2 images of the place. Stage 2 adds detail that looks plausible for this kind of place: the outline of a large building is usually right, the texture of a roof may be invented.</p>
-        <p>So treat fine detail as a good guess, not a measurement. Before a decision depends on it, test the images for your task against a real high-resolution image or a field visit. Where you need measured values, for example a vegetation index, use stage 1 or the Sentinel-2 image.</p>
-      </div></details>
-      <details><summary>Which files do I get, and which one do I use?</summary><div class="a">
-        <div class="scroll-x"><table class="plain">
-          <tr><th>For</th><th>File</th><th>What it is</th></tr>
-          <tr><td>Slides, documents</td><td><code>stage2_preview.png</code>, <code>stage1_preview.png</code></td><td>Colour picture, ready to paste</td></tr>
-          <tr><td>QGIS, GIS, analysis</td><td><code>stage2_sr.tif</code>, <code>stage1_sr.tif</code></td><td>GeoTIFF with red, green, blue and near-infrared at 2.5 m, as reflectance × 10000</td></tr>
-          <tr><td>Comparison</td><td><code>lr_reference.tif</code></td><td>The Sentinel-2 input (10 m) on the same grid</td></tr>
-          <tr><td>Quality check</td><td><code>validity.tif</code></td><td>0 no data · 1 valid · 2 fewer than 4 different clear images</td></tr>
-          <tr><td>More bands</td><td><code>bands20_sr.tif</code></td><td>Red-edge and short-wave infrared bands at 2.5 m</td></tr>
-          <tr><td>Record</td><td><code>manifest.json</code></td><td>The Sentinel-2 images used, the settings, the cost and the warnings</td></tr>
-        </table></div>
-        <p>Files are kept for 30 days. A download link works for 7 days; open the image again on the image page to get fresh links.</p>
-      </div></details>
-      <details><summary>How do I open the image in QGIS?</summary><div class="a">
-        <ol><li>On the image page, download <code>stage2_sr.tif</code> (or copy its link).</li>
-          <li>Drag the file into QGIS. For a link: Layer → Add Layer → Add Raster Layer, source type “Protocol: HTTP(S)”, paste the link.</li>
-          <li>If the image looks dark: Layer Properties → Symbology, set Min 0 and Max 3000 for the red, green and blue band. Bands 1 to 4 are red, green, blue and near-infrared.</li></ol>
-      </div></details>
-      <details><summary>How do I use the image in a Python notebook?</summary><div class="a">
-        <p>The image page shows these lines with your own image filled in:</p>
-        <pre>!pip install -q "sr-client[geo,viz] @ git+https://github.com/adb-sr/sr-client"
-from sr_client import SRClient
-sr = SRClient("srk_...", url="<span class="svc"></span>")
-job = sr.job("the id of your image")
-image = job.open("stage2_sr.tif")     # xarray, reflectance 0 to 1
-job.download("results/")              # all files</pre>
-      </div></details>
-      <details><summary>What do the warnings mean?</summary><div class="a">
-        <p>A warning never stops an image. It tells you where to look twice.</p>
-        <ul><li><b>water</b>: much of the area is water. Super-resolution removes detail in shallow water, so use the Sentinel-2 image there.</li>
-          <li><b>low_diversity</b>: fewer than 4 different clear Sentinel-2 images were found for part of the area. The result can be less sharp there. A longer search period or a higher cloud limit helps.</li>
-          <li><b>nodata</b>: part of the area has no clear image and stays empty.</li>
-          <li><b>haze</b>: the Sentinel-2 images look hazy. Try another date.</li>
-          <li><b>missing_tiles</b>: part of the area could not be processed. Run it again.</li></ul>
-      </div></details>
-      <details><summary>May I use the images in a report or a presentation?</summary><div class="a">
-        <p>Yes. Say that it is a super-resolved (AI-enhanced) Sentinel-2 image, so that nobody takes it for a real high-resolution photo, and add the credit “Contains modified Copernicus Sentinel data” with the year of the image.</p>
-      </div></details>
-      <details><summary>A page or a notebook does not load on my office network. What now?</summary><div class="a">
-        <p>Some office networks block this site, Google Colab or the image service. Try mobile data or another network. The tracing exercise also exists <a href="exercises/">as a Colab notebook</a>. If nothing works, follow on a teammate's screen and tell the workshop team.</p>
-      </div></details>
-      <details><summary>What happens to what I type on these pages?</summary><div class="a">
-        <ul><li><b>Ideas and projects</b> (text, name, affiliation) are stored in a Google Sheet of the workshop team, and everyone with the link can read them on the boards.</li>
-          <li><b>Your email address</b> on the image page goes only to the image service, which stores it with your key. Your key is kept in your own browser.</li>
-          <li><b>The tracing exercise</b> stores your lines and scores without a name.</li></ul>
-      </div></details>
-      <details><summary>Who do I ask?</summary><div class="a">
-        <p id="contact">Ask the workshop team in the room or in the meeting chat, or come to the <a href="#office-hours">office hours</a>.</p>
-      </div></details>
-    </div>
+    <div class="sec-head"><h2>Questions and answers</h2></div>
+    <div class="empty">Answers to common questions will be added here. Until then, ask the workshop team in the room or in the meeting chat.</div>
   </section>
 </main>
 <footer class="foot"></footer>
@@ -206,16 +165,13 @@ const keep = location.search.match(/[?&]s=[\w-]+/);
 if (keep) for (const a of document.querySelectorAll("a[data-keep]")) a.href += "?" + keep[0].slice(1);
 // links that come from config.js
 $("keyLink").href = SR_SERVICE + "/signup";
-for (const s of document.querySelectorAll(".svc")) s.textContent = SR_SERVICE;
 const oh = safeUrl(OFFICE_HOURS.url);
 if (oh) { $("ohLink").href = oh; $("ohLink").hidden = false; $("ohSoon").hidden = true; }
 if (OFFICE_HOURS.when) $("ohWhen").textContent = OFFICE_HOURS.when;
 if (CONTACT.email || CONTACT.name) {
-  const p = $("contact"); p.append(" You can also write to ");
+  const p = $("ohText"); p.append(" You can also write to ");
   p.append(CONTACT.email ? el("a", { href: "mailto:" + CONTACT.email, text: CONTACT.name || CONTACT.email }) : CONTACT.name, ".");
 }
-// open the answer a link points to
-if (location.hash === "#faq") document.getElementById("faq").scrollIntoView();
 </script>
 </body>
 </html>

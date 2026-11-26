@@ -111,24 +111,28 @@ function openLog(session, onChange) {
 }
 
 // Replay the lines into the boards' content.
-const NEW_GROUP = "new";      // the group every note starts in; it cannot be removed
+// A note has a place on the whiteboard (x, y: its top left corner, in board pixels) and a height in the pile (z:
+// the note moved last lies on top). A "group" is a heading that can be put anywhere on the board.
+const NEW_GROUP = "new";      // from the first version of the board, where notes sat in groups; kept so old lines still read
 function replay(events) {
-  const notes = new Map(), groups = new Map([[NEW_GROUP, { g: NEW_GROUP, title: "New ideas", order: 0 }]]), projects = new Map();
-  const note = n => { if (!notes.has(n)) notes.set(n, { n, text: "", color: "yellow", g: NEW_GROUP, name: "", votes: new Set(), made: false, gone: false, ts: 0 }); return notes.get(n); };
+  const notes = new Map(), groups = new Map(), projects = new Map();
+  const note = n => { if (!notes.has(n)) notes.set(n, { n, text: "", color: "yellow", g: NEW_GROUP, name: "", votes: new Set(), made: false, gone: false, ts: 0, x: null, y: null, z: 0 }); return notes.get(n); };
   const proj = p => { if (!projects.has(p)) projects.set(p, { p, title: "", what: "", where: "", need: "", link: "", from: "", members: new Map(), made: false, gone: false, ts: 0 }); return projects.get(p); };
   const str = (v, max) => String(v === undefined || v === null ? "" : v).slice(0, max);
-  let order = 0;
+  const at = v => Math.max(-20000, Math.min(20000, Math.round(Number(v))));
+  const place = (x, ev) => { if (Number.isFinite(Number(ev.x)) && Number.isFinite(Number(ev.y)) && ev.x !== null && ev.y !== null) { x.x = at(ev.x); x.y = at(ev.y); x.z = ++height; } };
+  let order = 0, height = 0;
   for (const ev of events) {
     switch (ev.k) {
       case "note.add": { const x = note(ev.n); x.made = true; x.ts = ev.ts || 0; x.order = ++order; x.text = str(ev.text, 400); x.name = str(ev.name, 60);
-        if (ev.color) x.color = str(ev.color, 12); if (ev.g) x.g = str(ev.g, 30); break; }
+        if (ev.color) x.color = str(ev.color, 12); if (ev.g) x.g = str(ev.g, 30); place(x, ev); break; }
       case "note.edit": { const x = note(ev.n); if ("text" in ev) x.text = str(ev.text, 400); if ("color" in ev) x.color = str(ev.color, 12);
-        if ("g" in ev) x.g = str(ev.g, 30); if ("name" in ev) x.name = str(ev.name, 60); break; }
+        if ("g" in ev) x.g = str(ev.g, 30); if ("name" in ev) x.name = str(ev.name, 60); place(x, ev); break; }
       case "note.del": note(ev.n).gone = true; break;
       case "note.vote": { const x = note(ev.n); if (ev.on) x.votes.add(ev.by); else x.votes.delete(ev.by); break; }
-      case "group.add": if (ev.g !== NEW_GROUP) groups.set(ev.g, { g: ev.g, title: str(ev.title, 60) || "Group", order: ++order }); break;
-      case "group.edit": if (groups.has(ev.g)) groups.get(ev.g).title = str(ev.title, 60) || groups.get(ev.g).title; break;
-      case "group.del": if (ev.g !== NEW_GROUP) groups.delete(ev.g); break;
+      case "group.add": if (ev.g && ev.g !== NEW_GROUP) { const g = { g: ev.g, title: str(ev.title, 60) || "Heading", order: ++order, x: null, y: null, z: 0 }; place(g, ev); groups.set(ev.g, g); } break;
+      case "group.edit": if (groups.has(ev.g)) { const g = groups.get(ev.g); if ("title" in ev) g.title = str(ev.title, 60) || g.title; place(g, ev); } break;
+      case "group.del": groups.delete(ev.g); break;
       case "proj.add": case "proj.edit": { const x = proj(ev.p);
         if (ev.k === "proj.add") { x.made = true; x.ts = ev.ts || 0; x.order = ++order; x.from = str(ev.from, 30); }
         for (const [f, max] of [["title", 120], ["what", 1200], ["where", 300], ["need", 600], ["link", 500]]) if (f in ev) x[f] = str(ev[f], max);
@@ -138,9 +142,12 @@ function replay(events) {
       case "proj.leave": proj(ev.p).members.delete(str(ev.m, 30)); break;
     }
   }
-  const liveNotes = [...notes.values()].filter(x => x.made && !x.gone);
-  for (const x of liveNotes) if (!groups.has(x.g)) x.g = NEW_GROUP;      // its group was removed
+  const liveNotes = [...notes.values()].filter(x => x.made && !x.gone).sort((a, b) => a.order - b.order);
+  let k = 0;      // a note without a place (written before the board had places) gets one in a tidy block
+  for (const x of liveNotes) if (x.x === null) { x.x = (k % 5) * 224; x.y = Math.floor(k / 5) * 196; k += 1; }
+  const liveGroups = [...groups.values()].sort((a, b) => a.order - b.order);
+  liveGroups.forEach((g, i) => { if (g.x === null) { g.x = i * 320; g.y = -70; } });
   const liveProjects = [...projects.values()].filter(x => x.made && !x.gone);
   const projectOfNote = new Map(liveProjects.filter(p => p.from).map(p => [p.from, p]));
-  return { notes: liveNotes, groups: [...groups.values()].sort((a, b) => a.order - b.order), projects: liveProjects, projectOfNote };
+  return { notes: liveNotes, groups: liveGroups, projects: liveProjects, projectOfNote };
 }

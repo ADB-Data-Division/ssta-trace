@@ -6,87 +6,124 @@
 <title>Ideas board · Super-resolution workshop</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Open+Sans:wght@700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-.composer { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
-.composer .side { display: flex; flex-direction: column; gap: 10px; min-width: 190px; }
-.dots { display: flex; gap: 8px; }
-.dots button { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2px solid var(--card-edge); }
-.dots button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
-.group { border: 2px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
-.group.over { border-color: var(--brand); background: var(--wash-soft); }
-.group > header { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
-.group > header h2 { font-size: 1.2rem; }
-.group > header .count { color: var(--muted); font-size: .9rem; }
-.group > header .tools { margin-left: auto; display: flex; gap: 4px; }
-.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; min-height: 48px; }
-.wall:empty::after { content: "No notes here yet."; color: var(--muted); font-size: .92rem; align-self: center; }
-.sticky { position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 150px; padding: 12px 12px 8px; border-radius: 3px;
-  background: var(--note-yellow); box-shadow: 0 2px 5px rgba(0,0,0,.22); min-width: 0; }
-.sticky[draggable="true"] { cursor: grab; }
-.sticky.dragging { opacity: .45; }
-.sticky.pending { opacity: .75; }
-.sticky .text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.05rem; line-height: 1.3; flex: 1; }
-.sticky .who { font-size: .82rem; color: rgba(0,0,0,.6); }
-.sticky .foot { display: flex; align-items: center; gap: 4px; margin: 0 -4px; }
-.sticky .foot button { border: 0; background: rgba(255,255,255,.55); padding: 3px 9px; font-size: .9rem; border-radius: 999px; }
-.sticky .foot button.on { background: var(--ink); color: #fff; }
-.sticky .foot .sp { flex: 1; }
-.sticky .proj { font-size: .85rem; font-weight: 700; }
-.menu { position: relative; }
-.menu > summary { list-style: none; cursor: pointer; border-radius: 999px; background: rgba(255,255,255,.55); padding: 3px 10px; font-weight: 700; font-size: .9rem; }
-.menu > summary::-webkit-details-marker { display: none; }
-.menu .pop { position: absolute; right: 0; bottom: calc(100% + 4px); z-index: 5; background: #fff; border: 2px solid var(--card-edge); border-radius: 10px;
-  padding: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 190px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
-.menu .pop button, .menu .pop a { border: 0; background: none; text-align: left; padding: 7px 10px; font: 400 .95rem var(--body); border-radius: 6px; color: var(--ink); text-decoration: none; display: block; width: 100%; cursor: pointer; }
-.menu .pop button:hover, .menu .pop a:hover { background: var(--wash-soft); }
-.menu .pop .sep { border-top: 1px solid var(--line); margin: 4px 0; }
-.menu .pop .lab { font-size: .78rem; color: var(--muted); padding: 4px 10px 0; }
-body.big .sticky .text { font-size: 1.3rem; }
-body.big .wall { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-@media (max-width: 640px) { .composer { grid-template-columns: 1fr; } .wall { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+/* The page is one screen: top bar, a slim tool bar, and the whiteboard filling the rest. */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 9px 20px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar h1 { font-size: 1.05rem; letter-spacing: -.01em; }
+.bar .sp { flex: 1; }
+.bar .narrow { display: none; }
+.seg { display: inline-flex; background: #eef1f5; border-radius: 9px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; box-shadow: none; min-height: 30px; padding: 4px 11px; font-size: .84rem; border-radius: 7px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow-s); }
+.area { position: relative; flex: 1; min-height: 0; }
+
+.stage { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  background-color: #f3f5f8; background-image: radial-gradient(circle, #c9d1dc 1.2px, transparent 1.4px); background-size: 24px 24px; }
+.stage.panning { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; will-change: transform; }
+.note { position: absolute; left: 0; top: 0; width: 200px; min-height: 132px; display: flex; flex-direction: column; gap: 8px; padding: 13px 13px 9px; border-radius: 4px 4px 14px 4px;
+  background: var(--note-yellow); box-shadow: 0 1px 1px rgba(16,24,40,.12), 0 6px 14px rgba(16,24,40,.13); cursor: grab; touch-action: none;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .15s; }
+.note:hover { box-shadow: 0 1px 1px rgba(16,24,40,.14), 0 10px 22px rgba(16,24,40,.18); }
+.note.drag { transition: box-shadow .15s; cursor: grabbing; box-shadow: 0 4px 6px rgba(16,24,40,.12), 0 22px 40px rgba(16,24,40,.28); }
+.note.pending { opacity: .8; }
+.note.fresh { animation: pop .3s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { opacity: 0; scale: .7; } to { opacity: 1; scale: 1; } }
+.note .text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .98rem; line-height: 1.32; font-weight: 500; flex: 1; color: #1d2433; }
+.note .who { font-size: .76rem; color: rgba(16,24,40,.6); }
+.note .proj { font-size: .78rem; font-weight: 600; color: #0b4a6b; text-decoration: none; background: rgba(255,255,255,.6); border-radius: 6px; padding: 3px 7px; align-self: flex-start; }
+.note .proj:hover { background: #fff; }
+.note .foot { display: flex; align-items: center; gap: 4px; margin: 0 -5px; }
+.note .foot button { border: 0; background: rgba(255,255,255,.5); padding: 2px 9px; font-size: .82rem; border-radius: 999px; box-shadow: none; min-height: 27px; color: #1d2433; }
+.note .foot button:hover { background: rgba(255,255,255,.9); }
+.note .foot button.on { background: #1d2433; color: #fff; }
+.note .foot .sp { flex: 1; }
+.label { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; font: 700 1.5rem/1.15 var(--head); letter-spacing: -.02em; color: #1d2433; white-space: nowrap;
+  padding: 4px 10px; border-radius: 10px; cursor: grab; touch-action: none; transition: transform .28s cubic-bezier(.2,.8,.2,1), background .15s; }
+.label:hover, .label:focus-within { background: rgba(255,255,255,.85); box-shadow: var(--shadow-s); }
+.label.drag { transition: none; cursor: grabbing; }
+.label button { visibility: hidden; border: 0; background: none; box-shadow: none; min-height: 0; padding: 2px 6px; font-size: 1rem; color: var(--muted); }
+.label:hover button, .label:focus-within button { visibility: visible; }
+
+.hud { position: absolute; display: flex; align-items: center; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; box-shadow: var(--shadow-m); z-index: 5; }
+.hud button { border: 0; box-shadow: none; min-height: 34px; min-width: 34px; padding: 4px 8px; background: transparent; font-size: .84rem; }
+.hud button:hover:not(:disabled) { background: #eef1f5; }
+#zoomer { right: 16px; bottom: 16px; }
+#zoomPct { min-width: 52px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.dock { position: absolute; left: 50%; bottom: 16px; translate: -50% 0; width: min(680px, calc(100% - 32px)); z-index: 6; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: var(--shadow-l); padding: 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: end; }
+.dock textarea { border: 0; box-shadow: none !important; resize: none; min-height: 40px; max-height: 110px; padding: 9px 8px; font-size: 1rem; background: transparent; }
+.dock .opts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+.dock .opts input { width: 190px; min-height: 30px; padding: 4px 9px; font-size: .86rem; }
+.dock textarea, .dock input { user-select: text; -webkit-user-select: text; }
+.dots { display: flex; gap: 6px; }
+.dots button { width: 24px; height: 24px; min-height: 0; padding: 0; border-radius: 50%; border: 1px solid rgba(16,24,40,.18); box-shadow: none; }
+.dots button[aria-pressed="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--brand); }
+.blank { position: absolute; left: 50%; top: 38%; translate: -50% -50%; text-align: center; color: var(--muted); pointer-events: none; display: flex; flex-direction: column; gap: 6px; align-items: center; width: min(420px, 86%); }
+.blank b { font: 700 1.2rem var(--head); color: #344054; }
+.blank svg { width: 38px; height: 38px; color: #98a2b3; }
+
+.menu-pop { position: fixed; z-index: 60; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 1px; min-width: 200px; box-shadow: var(--shadow-l); }
+.menu-pop button, .menu-pop a { border: 0; background: none; box-shadow: none; justify-content: flex-start; text-align: left; padding: 8px 10px; font: 500 .9rem var(--body); border-radius: 8px; color: var(--ink);
+  text-decoration: none; display: flex; width: 100%; cursor: pointer; min-height: 0; }
+.menu-pop button:hover, .menu-pop a:hover { background: #f2f4f7; }
+.menu-pop .sep { border-top: 1px solid var(--line); margin: 5px 0; }
+.menu-pop .dots { padding: 6px 10px; }
+
+.listview { position: absolute; inset: 0; overflow: auto; padding: 22px 20px 40px; }
+.listview .in { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.wall .note { position: relative; width: auto; cursor: default; touch-action: auto; transform: none !important; }
+@media (max-width: 640px) {
+  .bar { padding: 8px 14px; gap: 6px 8px; } .bar h1 { font-size: 1rem; } .bar .status { order: 5; width: 100%; } .bar .wide { display: none; } .bar .narrow { display: inline; }
+  .dock { bottom: 10px; width: calc(100% - 20px); } .dock .opts input { flex: 1; width: auto; }
+  #zoomer { top: 10px; bottom: auto; right: 10px; }
+}
 </style>
 </head>
 <body>
 <header class="top" data-root="../" data-page="ideas"></header>
-<main class="wrap">
-  <div class="stack">
-    <div class="eyebrow"><b>Mini hackathon</b> · Topic brainstorming</div>
-    <h1>Ideas board</h1>
-    <p class="lead">Which decision in your office could a sharper satellite image help with? Write one idea per note. Vote for the ideas you would like to work on, then turn the best ones into projects.</p>
+<div class="bar">
+  <h1>Ideas board</h1>
+  <span class="status" id="status">Connecting…</span>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="View">
+    <button type="button" id="vBoard" aria-pressed="true"><i data-icon="grid"></i>Board</button>
+    <button type="button" id="vList" aria-pressed="false"><i data-icon="list"></i>Most votes</button>
   </div>
+  <button type="button" class="small-btn" id="addLabel"><i data-icon="type"></i><span class="wide">Add a heading</span><span class="narrow">Heading</span></button>
+  <button type="button" class="small-btn" id="help" aria-label="How the board works"><i data-icon="info"></i><span class="wide">How it works</span></button>
+</div>
 
-  <form class="panel blue" id="composer" autocomplete="off">
-    <div class="composer">
-      <label>Your idea
-        <textarea id="text" maxlength="240" rows="3" placeholder="e.g. Find new houses on protected farmland before the yearly field visit" required></textarea>
-      </label>
-      <div class="side">
-        <label>Your name <span class="hint">optional, shown on the note</span>
-          <input id="name" maxlength="40" placeholder="e.g. Ana, DHSUD">
-        </label>
-        <div class="row spread">
-          <div class="dots" id="dots" role="group" aria-label="Note colour"></div>
-          <button class="go" type="submit">Add note</button>
-        </div>
+<div class="area">
+  <div class="stage" id="stage" aria-label="Whiteboard with sticky notes">
+    <div class="world" id="world"></div>
+    <div class="blank" id="blank" hidden><i data-icon="bulb"></i><b>Which decision could a sharper satellite image help with?</b><span>Write one idea per note in the box below. Drag notes to group similar ideas, and vote for the ones you would like to work on.</span></div>
+    <div class="hud" id="zoomer" role="group" aria-label="Zoom">
+      <button type="button" id="zOut" aria-label="Zoom out"><i data-icon="minus"></i></button>
+      <button type="button" id="zoomPct" title="Back to 100 %">100 %</button>
+      <button type="button" id="zIn" aria-label="Zoom in"><i data-icon="plus"></i></button>
+      <button type="button" id="zFit" title="Show all notes" aria-label="Show all notes"><i data-icon="fit"></i></button>
+    </div>
+    <form class="dock" id="composer" autocomplete="off">
+      <textarea id="text" maxlength="240" rows="1" placeholder="Write an idea, one per note" aria-label="Your idea" required></textarea>
+      <button class="go" type="submit"><i data-icon="plus"></i>Add note</button>
+      <div class="opts">
+        <div class="dots" id="dots" role="group" aria-label="Note colour"></div>
+        <input id="name" maxlength="40" placeholder="Your name (optional)" aria-label="Your name, shown on the note (optional)">
       </div>
-    </div>
-  </form>
-
-  <div class="row spread">
-    <div class="row">
-      <button type="button" id="addGroup">+ Add a group</button>
-      <label class="check"><input type="checkbox" id="byVotes"> Most votes first</label>
-      <label class="check"><input type="checkbox" id="big"> Large text</label>
-    </div>
-    <span class="status" id="status">Connecting…</span>
+    </form>
   </div>
-
-  <div class="stack" id="board" aria-live="polite"></div>
-
-  <p class="small">Everyone with the link can add, move and remove notes: please treat it like a whiteboard in the room. Notes are stored in a Google Sheet of the workshop team. Do not write confidential or personal information on a note. On a computer you can drag a note into another group; on a phone use the note's “⋯” menu.</p>
-</main>
+  <div class="listview" id="listview" hidden><div class="in">
+    <p class="small">The ideas with the most votes first. Use the note's menu to turn an idea into a project.</p>
+    <div class="wall" id="wall"></div>
+  </div></div>
+</div>
 
 <dialog id="dlg"><form method="dialog" id="dlgForm">
   <h2 id="dlgTitle"></h2>
@@ -94,43 +131,57 @@ body.big .wall { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   <div class="actions"><button type="button" id="dlgCancel">Cancel</button><button class="go" type="submit" id="dlgOk">Save</button></div>
 </form></dialog>
 
-<footer class="foot"></footer>
+<dialog id="helpDlg"><form method="dialog">
+  <h2>How the board works</h2>
+  <ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px">
+    <li><b>Add</b> a note with the box at the bottom, or double-click an empty spot on the board.</li>
+    <li><b>Move</b> a note by dragging it. Everyone sees it move. Put similar ideas next to each other and add a heading above them.</li>
+    <li><b>Vote</b> with the ▲ button. “Most votes” lists the ideas by votes.</li>
+    <li><b>Edit</b> a note by double-clicking it, or use its ⋯ menu to change the colour, remove it or make it a project.</li>
+    <li><b>Look around</b>: drag the background to move the board. Zoom with the buttons, with Ctrl + mouse wheel, or with two fingers.</li>
+  </ul>
+  <p class="small">Everyone with the link can add, move and remove notes: please treat it like a whiteboard in the room. Notes are stored in a Google Sheet of the workshop team. Do not write confidential or personal information on a note.</p>
+  <div class="actions"><button class="go" type="submit">Close</button></div>
+</form></dialog>
+
 <script src="../config.js"></script>
 <script src="../assets/site.js"></script>
 <script src="../assets/board.js"></script>
 <script>
-const COLORS = ["yellow", "green", "blue", "pink", "orange"];
-let color = remember("ssta-note-color") || "yellow", board = { notes: [], groups: [], projects: [], projectOfNote: new Map() }, pendingIds = new Set(), openMenu = null;
+const COLORS = ["yellow", "green", "blue", "pink", "orange"], NOTE_W = 200, NOTE_H = 150;
+const stage = $("stage"), world = $("world");
+let log = null, color = remember("ssta-note-color") || "yellow", board = { notes: [], groups: [], projects: [], projectOfNote: new Map() }, pendingIds = new Set();
+let view = { x: 0, y: 0, k: 1 }, placed = false, mode = "board", fresh = new Set(), firstData = false;
 const keep = location.search.match(/[?&]s=[\w-]+/), sQuery = keep ? "?" + keep[0].slice(1) : "";
+const VIEW_KEY = "ssta-view-" + BOARD_SESSION;
+const noteEls = new Map(), labelEls = new Map();      // id -> element on the board
+const local = new Map();                              // id -> { x, y, until }: where I just put something, until the shared record says so too
+let drag = null, pan = null, pinch = null, lastTap = { t: 0, x: 0, y: 0, id: "" }, menu = null;
 
+// ------------------------------------------------------------ composer
 for (const c of COLORS) $("dots").append(el("button", { type: "button", title: c, "aria-label": c + " note", "aria-pressed": String(c === color),
   style: `background:var(--note-${c})`, onclick: e => { color = c; remember("ssta-note-color", c);
     for (const b of $("dots").children) b.setAttribute("aria-pressed", String(b === e.currentTarget)); } }));
 $("name").value = remember("ssta-name");
-$("big").checked = remember("ssta-big") === "1"; document.body.classList.toggle("big", $("big").checked);
-$("big").onchange = () => { remember("ssta-big", $("big").checked ? "1" : "0"); document.body.classList.toggle("big", $("big").checked); };
-$("byVotes").onchange = () => render();
-
-const log = openLog(BOARD_SESSION, (events, state) => {
-  board = replay(events);
-  pendingIds = new Set(events.filter(ev => !ev.t && state !== "local").map(ev => ev.n).filter(Boolean));
-  const st = $("status");
-  st.className = "status " + (state === "off" ? "off" : "live");
-  st.textContent = state === "local" ? "Not shared: this board is only stored in your browser" : state === "off" ? "No connection to the shared board. Retrying…"
-    : `Live · ${board.notes.length} note${board.notes.length === 1 ? "" : "s"}`;
-  if (!openMenu && !document.querySelector(".dragging")) render();
-});
-
+const grow = () => { const t = $("text"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 110) + "px"; };
+$("text").addEventListener("input", grow);
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("composer").requestSubmit(); } });
+function addNote(text, at) {
+  const name = $("name").value.trim(); remember("ssta-name", name);
+  const spot = at || freeSpot(), n = newId();
+  fresh.add(n);
+  if (!at) justAdded.set(n, { x: Math.round(spot.x), y: Math.round(spot.y), until: Date.now() + 45000 });
+  log.add("note.add", { n, text, color, name, x: Math.round(spot.x), y: Math.round(spot.y) });
+}
 $("composer").addEventListener("submit", e => {
   e.preventDefault();
   const text = $("text").value.trim(); if (!text) return;
-  remember("ssta-name", $("name").value.trim());
-  log.add("note.add", { n: newId(), text, color, name: $("name").value.trim(), g: NEW_GROUP });
-  $("text").value = ""; $("text").focus();
+  if (mode !== "board") setMode("board");
+  addNote(text);
+  $("text").value = ""; grow(); $("text").focus();
 });
-$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("composer").requestSubmit(); });
 
-// One small dialog for every question: edit a note (long text) or name a group (short text).
+// ------------------------------------------------------------ small dialog for every question
 function ask(title, label, value, long) {
   return new Promise(done => {
     const dlg = $("dlg"), field = long ? $("dlgText") : $("dlgInput");
@@ -143,62 +194,275 @@ function ask(title, label, value, long) {
     dlg.showModal(); field.focus(); field.select();
   });
 }
-$("addGroup").onclick = async () => {
-  const title = await ask("Add a group", "Name of the group, e.g. a theme", "", false);
-  if (title) log.add("group.add", { g: newId(), title });
+$("dlgText").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("dlgForm").requestSubmit(); });
+$("help").onclick = () => $("helpDlg").showModal();
+async function editNote(x) { const t = await ask("Edit the note", "Text", x.text, true); if (t) log.add("note.edit", { n: x.n, text: t }); }
+async function editLabel(g) { const t = await ask("Rename the heading", "Heading", g.title, false); if (t) log.add("group.edit", { g: g.g, title: t }); }
+$("addLabel").onclick = async () => {
+  const title = await ask("Add a heading", "A name for a group of notes, e.g. a theme", "", false);
+  if (!title) return;
+  if (mode !== "board") setMode("board");
+  const c = toWorld(stage.clientWidth / 2, 90);
+  log.add("group.add", { g: newId(), title, x: Math.round(c.x - 80), y: Math.round(c.y) });
 };
 
-function closeMenu() { if (openMenu) { openMenu.open = false; openMenu = null; render(); } }
-document.addEventListener("click", e => { if (openMenu && !openMenu.contains(e.target)) closeMenu(); });
+// ------------------------------------------------------------ note menu (one for the whole page)
+function closeMenu() { if (menu) { menu.remove(); menu = null; } }
+document.addEventListener("pointerdown", e => { if (menu && !menu.contains(e.target) && !e.target.closest("[data-menu]")) closeMenu(); }, true);
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
-
-function sticky(x) {
-  const mine = x.votes.has(DEVICE), p = board.projectOfNote.get(x.n);
-  const act = fn => () => { openMenu = null; fn(); render(); };
-  const pop = el("div", { class: "pop" },
-    el("button", { type: "button", text: "Edit the text", onclick: act(async () => { const t = await ask("Edit the note", "Text", x.text, true); if (t) log.add("note.edit", { n: x.n, text: t }); }) }),
-    p ? null : el("a", { href: `../projects/${sQuery}${sQuery ? "&" : "?"}from=${encodeURIComponent(x.n)}`, text: "Make it a project →" }),
-    el("div", { class: "sep" }), el("div", { class: "lab", text: "Colour" }),
-    el("div", { class: "dots", style: "padding:4px 10px" }, COLORS.map(c => el("button", { type: "button", title: c, "aria-label": c, style: `background:var(--note-${c});width:24px;height:24px`,
-      onclick: act(() => log.add("note.edit", { n: x.n, color: c })) }))),
-    board.groups.length > 1 ? [el("div", { class: "sep" }), el("div", { class: "lab", text: "Move to" }),
-      board.groups.filter(g => g.g !== x.g).map(g => el("button", { type: "button", text: g.title, onclick: act(() => log.add("note.edit", { n: x.n, g: g.g })) }))] : null,
+function openMenu(x, button) {
+  if (menu && menu.dataset.n === x.n) { closeMenu(); return; }
+  closeMenu();
+  const p = board.projectOfNote.get(x.n), act = fn => () => { closeMenu(); fn(); };
+  menu = el("div", { class: "menu-pop", role: "menu", dataset: { n: x.n } },
+    el("button", { type: "button", onclick: act(() => editNote(x)) }, "Edit the text"),
+    p ? el("a", { href: `../projects/${sQuery}#p-${p.p}`, text: "Open its project →" })
+      : el("a", { href: `../projects/${sQuery}${sQuery ? "&" : "?"}from=${encodeURIComponent(x.n)}`, text: "Make it a project →" }),
     el("div", { class: "sep" }),
-    el("button", { type: "button", text: "Remove the note", onclick: act(() => { if (confirm("Remove this note for everyone?")) log.add("note.del", { n: x.n }); }) }));
-  const menu = el("details", { class: "menu", ontoggle: e => { if (e.currentTarget.open) openMenu = e.currentTarget; else if (openMenu === e.currentTarget) openMenu = null; } },
-    el("summary", { "aria-label": "More actions for this note", text: "⋯" }), pop);
-  const card = el("div", { class: "sticky" + (pendingIds.has(x.n) ? " pending" : ""), style: `background:var(--note-${COLORS.includes(x.color) ? x.color : "yellow"})`, draggable: "true", dataset: { n: x.n } },
+    el("div", { class: "dots" }, COLORS.map(c => el("button", { type: "button", title: c, "aria-label": c, "aria-pressed": String(c === x.color), style: `background:var(--note-${c})`,
+      onclick: act(() => log.add("note.edit", { n: x.n, color: c })) }))),
+    el("div", { class: "sep" }),
+    el("button", { type: "button", class: "danger", onclick: act(() => { if (confirm("Remove this note for everyone?")) log.add("note.del", { n: x.n }); }) }, "Remove the note"));
+  document.body.append(menu);
+  const r = button.getBoundingClientRect(), w = menu.offsetWidth, h = menu.offsetHeight;
+  menu.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + "px";
+  menu.style.top = (r.top - h - 6 > 8 ? r.top - h - 6 : Math.min(window.innerHeight - h - 8, r.bottom + 6)) + "px";
+}
+
+// ------------------------------------------------------------ drawing the notes
+const colorOf = x => `var(--note-${COLORS.includes(x.color) ? x.color : "yellow"})`;
+function fillNote(card, x) {      // (re)writes what a note shows; the element itself stays, so a drag is never interrupted
+  const mine = x.votes.has(DEVICE), p = board.projectOfNote.get(x.n);
+  const sig = [x.text, x.name, x.color, x.votes.size, mine, p ? p.p + p.title : "", pendingIds.has(x.n)].join("\u0001");
+  if (card.dataset.sig === sig) return;
+  card.dataset.sig = sig;
+  card.style.background = colorOf(x);
+  card.classList.toggle("pending", pendingIds.has(x.n));
+  card.replaceChildren(...[
     el("div", { class: "text", text: x.text }),
     x.name ? el("div", { class: "who", text: x.name }) : null,
     p ? el("a", { class: "proj", href: `../projects/${sQuery}#p-${p.p}`, text: `Project: ${p.title} →` }) : null,
     el("div", { class: "foot" },
       el("button", { type: "button", class: mine ? "on" : "", "aria-pressed": String(mine), title: mine ? "Take back your vote" : "Vote for this idea",
-        text: `▲ ${x.votes.size}`, onclick: () => log.add("note.vote", { n: x.n, on: !mine }) }),
-      el("span", { class: "sp" }), menu));
-  card.addEventListener("dragstart", e => { e.dataTransfer.setData("text/plain", x.n); e.dataTransfer.effectAllowed = "move"; card.classList.add("dragging"); });
-  card.addEventListener("dragend", () => { card.classList.remove("dragging"); render(); });
-  return card;
+        "aria-label": `${x.votes.size} vote${x.votes.size === 1 ? "" : "s"}. ${mine ? "Take back your vote" : "Vote for this idea"}`,
+        onclick: () => log.add("note.vote", { n: x.n, on: !mine }) }, `▲ ${x.votes.size}`),
+      el("span", { class: "sp" }),
+      el("button", { type: "button", "aria-label": "More actions for this note", dataset: { menu: "1" }, onclick: e => openMenu(current(x.n) || x, e.currentTarget) }, icon("more")))].filter(Boolean));
+}
+const current = n => board.notes.find(v => v.n === n);
+const posOf = (id, o) => { const l = local.get(id); if (!l) return o; if (l.until > Date.now() && !(l.x === o.x && l.y === o.y)) return l; local.delete(id); return o; };
+function render() {
+  $("blank").hidden = board.notes.length > 0 || board.groups.length > 0 || mode !== "board";
+  if (mode === "list") {
+    const sorted = board.notes.slice().sort((a, b) => (b.votes.size - a.votes.size) || (a.order - b.order));
+    $("wall").replaceChildren(...sorted.map(x => { const c = el("div", { class: "note" }); fillNote(c, x); return c; }));
+    if (!sorted.length) $("wall").replaceChildren(el("div", { class: "empty", style: "grid-column:1/-1", text: "No notes yet." }));
+    return;
+  }
+  const seen = new Set();
+  for (const x of board.notes) {
+    seen.add(x.n);
+    let card = noteEls.get(x.n);
+    if (!card) {
+      card = el("div", { class: "note" + (fresh.has(x.n) ? " fresh" : ""), tabindex: "0", dataset: { n: x.n } });
+      if (fresh.has(x.n)) { card.style.transition = "none"; requestAnimationFrame(() => requestAnimationFrame(() => { card.style.transition = ""; })); }
+      fresh.delete(x.n); noteEls.set(x.n, card); world.append(card);
+    }
+    fillNote(card, x);
+    if (!(drag && drag.id === x.n && drag.moved)) { const p = posOf(x.n, x); card.style.transform = `translate(${p.x}px, ${p.y}px)`; card.style.zIndex = String(10 + x.z); }
+  }
+  for (const [n, card] of noteEls) if (!seen.has(n)) { card.remove(); noteEls.delete(n); }
+  const seenG = new Set();
+  for (const g of board.groups) {
+    seenG.add(g.g);
+    let lab = labelEls.get(g.g);
+    if (!lab) {
+      lab = el("div", { class: "label", dataset: { g: g.g } }, el("span"),
+        el("button", { type: "button", title: "Remove the heading", "aria-label": "Remove the heading", onclick: () => { const now = board.groups.find(v => v.g === g.g); if (now && confirm(`Remove the heading “${now.title}”? The notes stay.`)) log.add("group.del", { g: g.g }); } }, "✕"));
+      labelEls.set(g.g, lab); world.append(lab);
+    }
+    lab.firstChild.textContent = g.title;
+    if (!(drag && drag.id === g.g && drag.moved)) { const p = posOf(g.g, g); lab.style.transform = `translate(${p.x}px, ${p.y}px)`; lab.style.zIndex = "90000"; }
+  }
+  for (const [id, lab] of labelEls) if (!seenG.has(id)) { lab.remove(); labelEls.delete(id); }
 }
 
-function render() {
-  const byVotes = $("byVotes").checked, root = $("board"), y = window.scrollY;
-  root.replaceChildren(...board.groups.map(g => {
-    const notes = board.notes.filter(x => x.g === g.g).sort((a, b) => byVotes ? (b.votes.size - a.votes.size) || (a.order - b.order) : a.order - b.order);
-    const sec = el("section", { class: "group", dataset: { g: g.g } },
-      el("header", null, el("h2", { text: g.title }), el("span", { class: "count", text: `${notes.length} note${notes.length === 1 ? "" : "s"}` }),
-        g.g === NEW_GROUP ? null : el("span", { class: "tools" },
-          el("button", { type: "button", class: "quiet", text: "Rename", onclick: async () => { const t = await ask("Rename the group", "Name", g.title, false); if (t) log.add("group.edit", { g: g.g, title: t }); } }),
-          el("button", { type: "button", class: "quiet", text: "Remove", onclick: () => { if (confirm(`Remove the group “${g.title}”? Its notes go back to “New ideas”.`)) log.add("group.del", { g: g.g }); } }))),
-      el("div", { class: "wall" }, notes.map(sticky)));
-    sec.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; sec.classList.add("over"); });
-    sec.addEventListener("dragleave", e => { if (!sec.contains(e.relatedTarget)) sec.classList.remove("over"); });
-    sec.addEventListener("drop", e => { e.preventDefault(); sec.classList.remove("over");
-      const n = e.dataTransfer.getData("text/plain"), x = board.notes.find(v => v.n === n);
-      if (x && x.g !== g.g) log.add("note.edit", { n, g: g.g }); });
-    return sec;
-  }));
-  window.scrollTo(0, y);
+// ------------------------------------------------------------ the view: move and zoom the board
+function applyView(save = true) {
+  world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.k})`;
+  stage.style.backgroundSize = `${24 * view.k}px ${24 * view.k}px`;
+  stage.style.backgroundPosition = `${view.x}px ${view.y}px`;
+  $("zoomPct").textContent = Math.round(view.k * 100) + " %";
+  if (save) { try { sessionStorage.setItem(VIEW_KEY, JSON.stringify(view)); } catch (e) {} }
 }
+function restoreView() {
+  try { const v = JSON.parse(sessionStorage.getItem(VIEW_KEY) || "null");
+    if (v && [v.x, v.y, v.k].every(Number.isFinite)) { view = { x: v.x, y: v.y, k: Math.max(.2, Math.min(2.5, v.k)) }; applyView(false); return true; } } catch (e) {}
+  return false;
+}
+const toWorld = (sx, sy) => ({ x: (sx - view.x) / view.k, y: (sy - view.y) / view.k });
+function zoomAt(sx, sy, k) {
+  k = Math.max(.2, Math.min(2.5, k));
+  const w = toWorld(sx, sy);
+  view = { k, x: sx - w.x * k, y: sy - w.y * k }; applyView();
+}
+function fit() {
+  const W = stage.clientWidth, H = stage.clientHeight, dock = 150;
+  const items = board.notes.map(x => [x.x, x.y, x.x + NOTE_W, x.y + NOTE_H + 20]).concat(board.groups.map(g => [g.x, g.y, g.x + 260, g.y + 44]));
+  if (!items.length) { view = { k: 1, x: W / 2 - NOTE_W / 2, y: Math.max(40, (H - dock) / 2 - NOTE_H / 2) }; applyView(false); return; }
+  const x0 = Math.min(...items.map(b => b[0])), y0 = Math.min(...items.map(b => b[1])), x1 = Math.max(...items.map(b => b[2])), y1 = Math.max(...items.map(b => b[3]));
+  const pad = 40, k = Math.max(.2, Math.min(1, (W - 2 * pad) / (x1 - x0), (H - dock - 2 * pad) / (y1 - y0)));
+  view = { k, x: (W - (x1 - x0) * k) / 2 - x0 * k, y: Math.max(pad, (H - dock - (y1 - y0) * k) / 2) - y0 * k }; applyView(false);
+}
+$("zIn").onclick = () => zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, view.k * 1.25);
+$("zOut").onclick = () => zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, view.k / 1.25);
+$("zoomPct").onclick = () => zoomAt(stage.clientWidth / 2, stage.clientHeight / 2, 1);
+$("zFit").onclick = () => { fit(); applyView(); };
+stage.addEventListener("wheel", e => {
+  if (e.target.closest(".dock")) return;
+  e.preventDefault();
+  const r = stage.getBoundingClientRect();
+  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX - r.left, e.clientY - r.top, view.k * Math.exp(-e.deltaY * (e.deltaMode ? .05 : .0022)));
+  else { const f = e.deltaMode ? 30 : 1; view.x -= (e.shiftKey ? e.deltaY : e.deltaX) * f; view.y -= (e.shiftKey ? 0 : e.deltaY) * f; applyView(); }
+}, { passive: false });
+function freeSpot() {      // the free place nearest to the middle of what is on screen, on a loose grid so new notes line up
+  const c = toWorld(stage.clientWidth / 2, Math.max(120, (stage.clientHeight - 150) / 2));
+  const base = { x: Math.round(c.x - NOTE_W / 2), y: Math.round(c.y - NOTE_H / 2) }, taken = board.notes.map(x => posOf(x.n, x)), spots = [];
+  for (let i = -7; i <= 7; i++) for (let j = -7; j <= 7; j++) spots.push({ x: base.x + i * 224, y: base.y + j * 200, d: Math.hypot(i, j * 1.15) });
+  spots.sort((a, b) => a.d - b.d);
+  // one of the nearest free places, picked at random, so that people who add notes at the same moment rarely pick the same one
+  const free = spots.filter(p => !taken.some(t => Math.abs(t.x - p.x) < 214 && Math.abs(t.y - p.y) < 190)).slice(0, 8);
+  const p = free.length ? free[Math.floor(Math.random() * Math.min(free.length, taken.length ? 8 : 1))] : { x: base.x + Math.random() * 80, y: base.y + Math.random() * 80 };
+  return { x: p.x + Math.round(Math.random() * 16 - 8), y: p.y + Math.round(Math.random() * 16 - 8) };
+}
+// If two people still put a new note on the same place, the note that reached the shared record later steps aside
+// (its own browser moves it, once, and only while nobody has moved it by hand).
+const justAdded = new Map();      // my new notes: id -> { x, y, until }
+function stepAside() {
+  for (const [n, made] of justAdded) {
+    const x = current(n);
+    if (!x || Date.now() > made.until || x.x !== made.x || x.y !== made.y) { justAdded.delete(n); continue; }
+    if (pendingIds.has(n)) continue;
+    const under = board.notes.some(o => o.n !== n && o.order < x.order && Math.abs(o.x - x.x) < 150 && Math.abs(o.y - x.y) < 110);
+    if (under) { justAdded.delete(n); const p = freeSpot(); log.add("note.edit", { n, x: Math.round(p.x), y: Math.round(p.y) }); }
+  }
+}
+
+// ------------------------------------------------------------ pointer: drag notes and headings, move the board, pinch to zoom
+const pointers = new Map();
+function stagePoint(e) { const r = stage.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+stage.addEventListener("pointerdown", e => {
+  if (e.target.closest(".dock, .hud, button, a, input, textarea")) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  pointers.set(e.pointerId, stagePoint(e));
+  if (pointers.size === 2) {      // two fingers: zoom
+    if (drag && drag.moved) dropDrag(false);
+    drag = null; pan = null;
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, k: view.k, mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, w: toWorld((a.x + b.x) / 2, (a.y + b.y) / 2) };
+    return;
+  }
+  const card = e.target.closest(".note, .label"), p = stagePoint(e);
+  if (card) {
+    const id = card.dataset.n || card.dataset.g, isNote = !!card.dataset.n;
+    const o = isNote ? current(id) : board.groups.find(g => g.g === id); if (!o) return;
+    const at = posOf(id, o);
+    drag = { id, isNote, el: card, sx: p.x, sy: p.y, ox: at.x, oy: at.y, x: at.x, y: at.y, moved: false, pid: e.pointerId };
+  } else pan = { sx: p.x, sy: p.y, vx: view.x, vy: view.y, moved: false, pid: e.pointerId };
+});
+stage.addEventListener("pointermove", e => {
+  if (!pointers.has(e.pointerId)) return;
+  const p = stagePoint(e); pointers.set(e.pointerId, p);
+  if (pinch && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()], d = Math.hypot(a.x - b.x, a.y - b.y) || 1, mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const k = Math.max(.2, Math.min(2.5, pinch.k * d / pinch.d));
+    view = { k, x: mid.x - pinch.w.x * k, y: mid.y - pinch.w.y * k }; applyView(); return;
+  }
+  if (drag && e.pointerId === drag.pid) {
+    const dx = p.x - drag.sx, dy = p.y - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    if (!drag.moved) { drag.moved = true; closeMenu(); drag.el.classList.add("drag"); drag.el.style.zIndex = "100000"; try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
+    drag.x = drag.ox + dx / view.k; drag.y = drag.oy + dy / view.k;
+    drag.el.style.transform = `translate(${drag.x}px, ${drag.y}px)`;
+  } else if (pan && e.pointerId === pan.pid) {
+    const dx = p.x - pan.sx, dy = p.y - pan.sy;
+    if (!pan.moved && Math.hypot(dx, dy) < 4) return;
+    if (!pan.moved) { pan.moved = true; stage.classList.add("panning"); closeMenu(); try { stage.setPointerCapture(e.pointerId); } catch (err) {} }
+    view.x = pan.vx + dx; view.y = pan.vy + dy; applyView();
+  }
+});
+function dropDrag(commit) {
+  const d = drag; drag = null; if (!d) return;
+  d.el.classList.remove("drag");
+  if (commit && d.moved) {
+    const x = Math.round(d.x), y = Math.round(d.y);
+    local.set(d.id, { x, y, until: Date.now() + 20000 });
+    log.add(d.isNote ? "note.edit" : "group.edit", d.isNote ? { n: d.id, x, y } : { g: d.id, x, y });
+  } else render();
+}
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  const p = pointers.get(e.pointerId); pointers.delete(e.pointerId);
+  if (pinch) { if (pointers.size < 2) pinch = null; return; }
+  const now = Date.now();
+  if (drag && e.pointerId === drag.pid) {
+    const d = drag, tapped = !d.moved;
+    dropDrag(e.type === "pointerup");
+    if (tapped && e.type === "pointerup") {      // two quick taps on a note or heading: edit it
+      if (lastTap.id === d.id && now - lastTap.t < 380) { lastTap.t = 0; const o = d.isNote ? current(d.id) : board.groups.find(g => g.g === d.id); if (o) (d.isNote ? editNote : editLabel)(o); }
+      else lastTap = { t: now, x: p.x, y: p.y, id: d.id };
+    }
+  } else if (pan && e.pointerId === pan.pid) {
+    const moved = pan.moved; pan = null; stage.classList.remove("panning");
+    if (!moved && e.type === "pointerup") {      // two quick taps on the empty board: a new note there
+      if (lastTap.id === "bg" && now - lastTap.t < 380 && Math.hypot(p.x - lastTap.x, p.y - lastTap.y) < 30) {
+        lastTap.t = 0; const w = toWorld(p.x, p.y);
+        ask("New note", "Your idea", "", true).then(t => { if (t) addNote(t, { x: w.x - NOTE_W / 2, y: w.y - 40 }); });
+      } else lastTap = { t: now, x: p.x, y: p.y, id: "bg" };
+    }
+  }
+}
+stage.addEventListener("pointerup", endPointer); stage.addEventListener("pointercancel", endPointer);
+
+// keyboard: a note that has the focus can be edited, removed and moved
+world.addEventListener("keydown", e => {
+  const card = e.target.closest(".note"); if (!card || e.target !== card) return;
+  const x = current(card.dataset.n); if (!x) return;
+  const step = { ArrowLeft: [-24, 0], ArrowRight: [24, 0], ArrowUp: [0, -24], ArrowDown: [0, 24] }[e.key];
+  if (e.key === "Enter") { e.preventDefault(); editNote(x); }
+  else if (e.key === "Delete") { if (confirm("Remove this note for everyone?")) log.add("note.del", { n: x.n }); }
+  else if (step) {
+    e.preventDefault();
+    const at = posOf(x.n, x), nx = at.x + step[0], ny = at.y + step[1];
+    local.set(x.n, { x: nx, y: ny, until: Date.now() + 20000 }); card.style.transform = `translate(${nx}px, ${ny}px)`;
+    clearTimeout(card._t); card._t = setTimeout(() => log.add("note.edit", { n: x.n, x: nx, y: ny }), 700);
+  }
+});
+
+// ------------------------------------------------------------ board or list
+function setMode(m) {
+  mode = m; closeMenu();
+  $("vBoard").setAttribute("aria-pressed", String(m === "board")); $("vList").setAttribute("aria-pressed", String(m === "list"));
+  stage.hidden = m !== "board"; $("listview").hidden = m !== "list"; $("addLabel").hidden = m !== "board";
+  render(); if (m === "board") applyView(false);
+}
+$("vBoard").onclick = () => setMode("board"); $("vList").onclick = () => setMode("list");
+window.addEventListener("resize", () => applyView(false));
+fit();
+
+// ------------------------------------------------------------ the shared record
+log = openLog(BOARD_SESSION, (events, state) => {
+  board = replay(events);
+  pendingIds = new Set(events.filter(ev => !ev.t && state !== "local").map(ev => ev.n).filter(Boolean));
+  const st = $("status");
+  st.className = "status " + (state === "off" ? "off" : "live");
+  st.textContent = state === "local" ? "Not shared: this board is only stored in your browser" : state === "off" ? "No connection to the shared board. Retrying…"
+    : `Live · ${board.notes.length} note${board.notes.length === 1 ? "" : "s"}`;
+  render();
+  if (state === "live" && justAdded.size) stepAside();
+  if (!firstData && state !== "off") { firstData = true; if (!restoreView()) fit(); }
+});
+
 </script>
 </body>
 </html>

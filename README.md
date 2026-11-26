@@ -5,10 +5,10 @@ https://adb-data-division.github.io/ssta-trace/. Plain HTML, CSS and JavaScript:
 
 | Page | Path | What it is |
 |---|---|---|
-| Landing page | `index.html` | All links, the office hours link and the questions and answers |
-| Ideas board | `ideas/` | Sticky notes for the brainstorming: add, vote, group, turn into a project |
+| Landing page | `index.html` | All links and the office hours link (the questions and answers section is empty for now; the first draft is in commit 52cfe39) |
+| Ideas board | `ideas/` | A whiteboard: sticky notes that everyone can add, drag around, vote for and turn into a project; headings to name groups of notes |
 | Project board | `projects/` | Projects with a goal, a place and needs; people join with name and affiliation |
-| Make an image | `sr/` | A page in front of the super-resolution service: place, date, options, images, downloads |
+| Image service | `sr/` | A page in front of the super-resolution service: place, date, options, price check, viewer (Sentinel-2 inputs, stage 1, stage 2, validity mask), warnings, downloads |
 | Exercises | `exercises/` | List of exercises; the road tracing is at `exercises/trace/` (`results.html` is the presenter view) |
 | Colab version of the tracing | `trace_roads.ipynb` | For networks that block this site (built by `build_notebook.py`, kept outside this repo) |
 
@@ -29,7 +29,8 @@ Add `?s=<name>` to any page to work in a separate session, e.g. `?s=rehearsal`. 
 The ideas board and the project board need no server of their own. Every action (add a note, vote, start a
 project, join) is one row added to the Google Sheet behind `ENDPOINT`, in the session `board-workshop`
 (`board-<name>` with `?s=<name>`). The pages read all rows and replay them (`assets/board.js`), and ask for news
-every 6 to 8 seconds. Rows are only ever added:
+every 6 to 8 seconds. A note's place on the whiteboard is part of the record: dragging a note adds one row with
+its new place, and the row that arrived last wins. Rows are only ever added:
 
 - a removed note or project is still in the sheet;
 - to start with an empty board, delete the rows of that session in the sheet, or use a new `?s=` name;
@@ -48,16 +49,25 @@ addresses go through a Google Form, so they end up in your own Google Sheet:
 3. Paste the link into `config.js` as `SIGNUP_FORM`. The board replaces the three words with the project a
    person joined and the name and affiliation they typed.
 
-## The image page and the file store
+## The image page and where its pictures come from
 
-`sr/` talks to the service straight from the browser: sign-up by email (`POST /v1/signup`), estimate, submit,
-follow the job, list the files. The key stays in the browser's local storage. The ready-made areas in
-`sr/areas.js` send exactly the boxes of the notebooks, so images that already exist come back at once and free.
+`sr/` talks to the service straight from the browser: sign-up by email (`POST /v1/signup`), estimate (asked
+automatically about a second after the form changes; it is free), submit, follow the job, list the files. The key
+stays in the browser's local storage. The ready-made areas in `sr/areas.js` send exactly the boxes of the
+notebooks, so images that already exist come back at once and free.
 
-The preview pictures are shown as plain images, which always works. Two things work only if the file store
-(the Backblaze B2 bucket of the service) allows this site to read files: the Sentinel-2 image in the comparison
-view, and saving a picture with one click. To allow it, add a CORS rule to the bucket for the origin
-`https://adb-data-division.github.io` (downloads, S3-compatible API). The page notices by itself.
+| What the page shows | Where it comes from | Works today |
+|---|---|---|
+| Stage 1 and stage 2 | The service's preview pictures, shown as plain images | yes |
+| Sentinel-2 inputs (one image per date, click to show) | Read by the page from the public Sentinel-2 archive on AWS (`sentinel-cogs`, the files the service itself uses), cut to the job's frame; about 5 MB per image | yes |
+| Warnings with the measured values | The service (`GET /v1/jobs/{id}`) | yes |
+| Validity mask, shares of valid / weak / empty area, the exact images used, `lr_reference.tif` as a layer, saving a picture with one click | The job's own files in the file store (Backblaze B2 bucket of the service) | only after the bucket allows this site |
+
+To allow it, add a CORS rule to the bucket: in the Backblaze web console open the bucket's "CORS Rules", choose
+"Share everything in this bucket with this one origin", enter `https://adb-data-division.github.io`, and apply it to
+the S3-compatible API (or both). The page notices by itself: it tries to read `manifest.json` of the job and uses
+the service's files when that works. The rule only lets this site's pages read files through links that are
+already signed; it does not make anything public.
 
 ## Collecting tracing results (Google Sheet, about 5 minutes)
 
