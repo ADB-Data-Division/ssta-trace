@@ -12,7 +12,7 @@ const BOARD_SESSION = ("board-" + SESSION).slice(0, 40);
 
 // Standing office hours. Leave url empty until the meeting exists: the landing page then shows "link follows".
 const OFFICE_HOURS = {
-  url: "",                 // e.g. "https://teams.microsoft.com/l/meetup-join/..."
+  url: "https://meet.google.com/aoo-pnkk-wwf",
   when: "",                // e.g. "Every Thursday, 15:00–16:00 Manila time"
 };
 
