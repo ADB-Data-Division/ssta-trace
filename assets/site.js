@@ -33,6 +33,9 @@ const ICONS = {
   up: '<path d="M12 19V6"/><path d="M6 12l6-6 6 6"/>',
   back: '<path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/>',
   out: '<path d="M14 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+  data: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  shapes: '<rect x="3" y="13" width="8" height="8" rx="1.5"/><circle cx="17.5" cy="17" r="4"/><path d="M12 3l4.5 7.5h-9z"/>',
   satellite: '<path d="M13.5 6.5l4 4-3 3-4-4z"/><path d="M6 9l3-3 2.5 2.5-3 3zM13 16l3-3 2.5 2.5-3 3z" transform="translate(-1 -1)"/><path d="M4 16a4 4 0 0 0 4 4"/><path d="M4 12.5A7.5 7.5 0 0 0 11.500 20"/>',
 };
 function icon(name) {
@@ -48,6 +51,7 @@ function icon(name) {
     ["projects", "projects/", "Project board"],
     ["sr", "sr/", "Make an image"],
     ["exercises", "exercises/", "Exercises"],
+    ["datasets", "datasets/", "Datasets"],
     ["office", "#office-hours", "Office hours"],
   ];
   const top = document.querySelector("header.top");
@@ -69,11 +73,13 @@ function icon(name) {
       nav.append(a);
     }
     inner.append(home, nav); top.append(inner);
+    const cur = nav.querySelector('[aria-current]');      // on a phone the list of pages scrolls sideways: start at the current page
+    if (cur) nav.scrollLeft = cur.offsetLeft - nav.offsetLeft - 12;
   }
   const foot = document.querySelector("footer.foot");
   if (foot) {
     const d = document.createElement("div"); d.className = "in";
-    d.textContent = "Super-Resolution Satellite Imagery as a Regional Public Good for Sustainable Development · TA workshop, 26–27 November 2026, ADB headquarters. Super-resolved images contain modified Copernicus Sentinel data.";
+    d.textContent = "Super-resolution Satellite Imagery as a Regional Public Good for Sustainable Development · TA workshop, 26–27 November 2026, ADB headquarters. Super-resolved images contain modified Copernicus Sentinel data.";
     foot.append(d);
   }
   // <i data-icon="map"></i> in a page becomes the icon

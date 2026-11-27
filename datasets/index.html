@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Open datasets · Super-resolution workshop</title>
+<meta name="description" content="80 open datasets by theme to explore for a project or to check a map against, each with a decision an office could test.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="datasets.css">
+</head>
+<body>
+<!-- Built by build_datasets.py from notebooks/hackathon/DATASETS.md of the sr-client repo. Change the list there and build again. -->
+<header class="top" data-root="../" data-page="datasets"></header>
+<main class="wrap">
+  <div class="stack">
+    <div class="eyebrow"><b>Mini hackathon</b> · Open datasets</div>
+    <h1>Open datasets to explore</h1>
+    <p class="lead">80 open datasets, by theme, that you could explore for a project or check a map against. Every entry ends with a decision an office could test. All links were opened and checked on 26 November 2026.</p>
+  </div>
+
+  <div class="finder" id="finder">
+    <label class="search"><span class="sr-only">Search the datasets</span><i data-icon="search"></i><input id="q" type="search" placeholder="Search: mangrove, Philippines, roads, Earth Engine …" autocomplete="off"></label>
+    <div class="chips" role="group" aria-label="Show by SR fit">
+      <button type="button" class="chip on" data-fit="">All</button>
+      <button type="button" class="chip likely" data-fit="likely">Likely</button>
+      <button type="button" class="chip maybe" data-fit="maybe">Maybe</button>
+      <button type="button" class="chip unlikely" data-fit="unlikely">Unlikely</button>
+      <button type="button" class="chip context" data-fit="context">Context</button>
+    </div>
+    <label class="check"><input type="checkbox" id="people">Only labels made by people</label>
+    <span class="small" id="count" aria-live="polite"></span>
+  </div>
+
+  <nav class="themes" aria-label="Themes">
+    <a href="#how">How to read</a><a href="#start">Start here</a><a href="#measured">What we measured</a>
+    <a href="#cities-and-buildings">Cities and buildings <span>9</span></a><a href="#roads-energy-and-facilities">Roads, energy and facilities <span>5</span></a><a href="#farming">Farming <span>10</span></a><a href="#trees-and-plantations">Trees and plantations <span>8</span></a><a href="#land-cover-and-forests">Land cover and forests <span>9</span></a><a href="#mines-kilns-and-waste-sites">Mines, kilns and waste sites <span>4</span></a><a href="#coasts">Coasts <span>11</span></a><a href="#inland-water">Inland water <span>3</span></a><a href="#disasters">Disasters <span>6</span></a><a href="#context-people-money-risk">Context <span>8</span></a>
+  </nav>
+
+  <section id="how">
+    <div class="sec-head"><h2>How to read the entries</h2></div>
+    <div class="panel flat">
+      <p><b>SR fit</b> uses a size rule: super-resolution (SR) helped in our tests where the things to map are 2.5 to 10 m wide. It is our judgement, not a measurement.</p>
+      <div class="legend">
+        <div><span class="fit likely">Likely</span><span>The things mapped are 2.5 to 10 m wide. This is where SR helped in our tests.</span></div>
+        <div><span class="fit maybe">Maybe</span><span>SR may help with the small or narrow part (thin strips, small plots, edges). Test it.</span></div>
+        <div><span class="fit unlikely">Unlikely</span><span>The things are 10 m and more, or under water. Free Sentinel-2 should do as well. Good as a control: does SR make anything worse?</span></div>
+        <div><span class="fit context">Context</span><span>Not a test of SR. It helps you choose places and dates, or weigh a decision by people or money.</span></div>
+      </div>
+      <div class="notes">
+        <p><span class="mark people">Labels by people</span> Most open maps are made by a model, often from Sentinel-2 itself. They are a second opinion, or the 10 m result that SR has to beat. They are not the truth. Entries with this mark hold labels that people drew on sharper images or collected on the ground. Prefer them when you can.</p>
+        <p><span class="mark nc">Non-commercial</span> The licence allows non-commercial use only. Check the licence on the dataset's page before you use it in your office.</p>
+        <p><b>Get it.</b> "EE" means Google Earth Engine (free account needed), with the name of the layer. Sizes are for the whole download; most global maps come in tiles, so you only take the tile for your area.</p>
+        <p><b>Dates.</b> SR needs Sentinel-2 images, so it works from about 2017. Ask for SR images of the year the dataset describes, not of today.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="sec-head"><h2>Start here</h2><p>Maps you can cut out for almost any place, with a small download or in Earth Engine.</p></div>
+    <div class="picks">
+      <div class="pick"><b>New buildings, growth of a town</b><span><a href="#d-open-buildings-25d-temporal">Open Buildings 2.5D Temporal</a> (every year, 2016–2023)</span></div>
+      <div class="pick"><b>Informal settlements, camps</b><span><a href="#d-coxs-bazar-refugee-camp-footprints">Cox's Bazar camp footprints</a>, <a href="#d-building-footprints-of-informal-settlements-dlr">DLR informal-settlement footprints</a></span></div>
+      <div class="pick"><b>Roads: missing, paved or unpaved</b><span><a href="#d-heigit-road-surface-width-and-passability">HeiGIT road surface</a>, <a href="#d-microsoft-roaddetections">Microsoft road detections</a></span></div>
+      <div class="pick"><b>Small farms, field boundaries</b><span><a href="#d-fields-of-the-world-global-predictions">Fields of The World</a>, <a href="#d-10000-crop-field-boundaries-across-india">10,000 fields in India</a></span></div>
+      <div class="pick"><b>Trees in towns and on farms</b><span><a href="#d-canopy-height-at-1-m-meta-and-wri">Canopy height at 1 m</a>, <a href="#d-tropical-tree-cover-wri">Tropical Tree Cover</a></span></div>
+      <div class="pick"><b>Mangroves, fishponds, the coast</b><span><a href="#d-global-mangrove-watch-version-4">Global Mangrove Watch</a>, <a href="#d-aquaculture-ponds-2020">aquaculture ponds</a>, <a href="#d-openstreetmap-coast-and-coastal-structures">OpenStreetMap coastal structures</a></span></div>
+      <div class="pick"><b>Mines and quarries</b><span><a href="#d-global-mining-polygons-version-2-maus">Mining polygons</a></span></div>
+      <div class="pick"><b>Land cover in general</b><span><a href="#land-cover-and-forests">ESA WorldCover, Dynamic World</a></span></div>
+      <div class="pick"><b>Ponds, reservoirs, rivers</b><span><a href="#d-jrc-global-surface-water">JRC Global Surface Water</a></span></div>
+      <div class="pick"><b>Landslides</b><span><a href="#d-dated-landslides-since-2016-gfz">Dated landslides since 2016</a></span></div>
+    </div>
+  </section>
+
+  <div class="empty" id="none" hidden>No dataset matches. Try another word, or choose "All".</div>
+
+<section class="theme" id="measured">
+<div class="sec-head"><h2>What we measured ourselves</h2><span class="n">7</span></div>
+<p class="about">The tasks where we measured super-resolution (SR) against maps drawn by experts. Start from them if your project is close to one.</p>
+<div class="panel flat"><div class="scroll-x"><table class="plain"><thead><tr><th>Task</th><th>What we measured</th><th>Best image</th></tr></thead><tbody>
+<tr><td><b>Land cover, 8 classes</b> (building, road, tree, water, agriculture, rangeland, bare land, developed space)</td><td>Buildings in Cebu City (F1): Sentinel-2 0.21, stage 1 0.42, stage 2 0.53. Roads in Nueva Ecija: 0.01, 0.23, 0.40. Scored against public maps.</td><td>Stage 2</td></tr>
+<tr><td><b>Informal settlements</b>, Metro Manila</td><td>Map score (F1): Sentinel-2 8 %, stage 1 18 %, stage 2 22 %, real images 40 %. Of 20 field visits, hits: 6, 9, 9, 13.</td><td>Stage 2, standard</td></tr>
+<tr><td><b>Land cover around Hanoi</b>, 7 classes</td><td>Mean IoU: Sentinel-2 0.32, stage 1 0.38, stage 2 0.47, real images 0.57.</td><td>Stage 2, light or standard</td></tr>
+<tr><td><b>Roads</b>, near Hanoi</td><td>Of 40 map cells chosen for roads, correct: Sentinel-2 19, stage 1 24, stage 2 30, real images 33.</td><td>Stage 2, standard</td></tr>
+<tr><td><b>Field boundaries of small farms</b>, Viet Nam and Cambodia</td><td>Field F1: Sentinel-2 0.42, stage 1 0.46, stage 2 0.44. Small farms found in 30 visits: 13, 24, 22.</td><td>Stage 1</td></tr>
+<tr><td><b>Finding buildings</b></td><td>SR helps, but real images are much better. Do not count buildings with SR.</td><td>Depends on the model</td></tr>
+</tbody></table></div>
+<p class="small">The land-cover model is public: <a href="https://huggingface.co/adbsr-internal/satlas-downstream" target="_blank" rel="noopener">adbsr-internal/satlas-downstream</a> (180 MB, CC BY-NC-SA 4.0, with code to run it). It is the model of practical demonstration 2. The other models are not published. SR did <b>not</b> help for flood water and for damage to buildings.</p></div>
+<p class="about">The open datasets behind these measurements:</p>
+<article class="ds" id="d-openearthmap" data-fit="" data-people="0">
+  <header><h3><a href="https://open-earth-map.org/" target="_blank" rel="noopener">OpenEarthMap</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Hand-drawn land cover, 8 classes, on sub-metre images of 97 regions in 44 countries</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/7223446" target="_blank" rel="noopener">Zenodo</a>. CC BY-NC-SA 4.0 for the labels, per the project.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-ai4smallfarms" data-fit="" data-people="0">
+  <header><h3><a href="https://doi.org/10.17026/dans-xy6-ngg6" target="_blank" rel="noopener">AI4SmallFarms</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Hand-drawn field boundaries, Viet Nam and Cambodia, 2021</p></div>
+    <div><span class="lab">Get it</span><p>CC BY 4.0</p></div>
+  </div>
+</article>
+<article class="ds" id="d-googlemicrosoftosm-open-buildings-combined-by-vida" data-fit="" data-people="0">
+  <header><h3><a href="https://source.coop/vida/google-microsoft-osm-open-buildings" target="_blank" rel="noopener">Google–Microsoft–OSM Open Buildings, combined by VIDA</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Building outlines, one file per country</p></div>
+    <div><span class="lab">Get it</span><p>ODbL. See also <a href="https://sites.research.google/gr/open-buildings/" target="_blank" rel="noopener">Google Open Buildings</a>.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-overture-maps" data-fit="" data-people="0">
+  <header><h3><a href="https://docs.overturemaps.org/" target="_blank" rel="noopener">Overture Maps</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Roads from OpenStreetMap, and more</p></div>
+    <div><span class="lab">Get it</span><p>ODbL for the road layer</p></div>
+  </div>
+</article>
+<article class="ds" id="d-spacenet-7" data-fit="" data-people="0">
+  <header><h3><a href="https://spacenet.ai/sn7-challenge/" target="_blank" rel="noopener">SpaceNet 7</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Building outlines on monthly 4.7 m images, about 100 places</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://registry.opendata.aws/spacenet/" target="_blank" rel="noopener">SpaceNet on AWS</a></p></div>
+  </div>
+</article>
+<article class="ds" id="d-xbd-xview2" data-fit="" data-people="0">
+  <header><h3><a href="https://xview2.org/" target="_blank" rel="noopener">xBD (xView2)</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>Buildings and damage grades before and after disasters</p></div>
+    <div><span class="lab">Get it</span><p>See the site for access and licence</p></div>
+  </div>
+</article>
+<article class="ds" id="d-floodplanet" data-fit="" data-people="0">
+  <header><h3><a href="https://dc.cyverse.org/dataset/floodplanet" target="_blank" rel="noopener">FloodPlanet</a></h3><span class="tags"></span></header>
+  <div class="cols c2">
+    <div><span class="lab">What it is</span><p>366 hand-labelled flood tiles on 3 m images, with Sentinel-1 and Sentinel-2</p></div>
+    <div><span class="lab">Get it</span><p>ODC PDDL</p></div>
+  </div>
+</article>
+<p class="about">The Hanoi land-cover labels and the Metro Manila settlement labels are workshop material and not public.</p>
+</section>
+
+<section class="theme" id="cities-and-buildings">
+<div class="sec-head"><h2>Cities and buildings</h2><span class="n">9</span></div>
+<article class="ds" id="d-open-buildings-25d-temporal" data-fit="likely" data-people="0">
+  <header><h3><a href="https://sites.research.google/gr/open-buildings/temporal/" target="_blank" rel="noopener">Open Buildings 2.5D Temporal</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Building presence, height and count, one layer a year. Model-made <b>from Sentinel-2 alone</b> (detail of about 4 m).</p></div>
+    <div><span class="lab">Where, when</span><p>Africa, South Asia, Southeast Asia, Latin America. Names the Philippines, Thailand, Cambodia, Bangladesh, Viet Nam. 2016–2023.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_Research_open-buildings-temporal_v1" target="_blank" rel="noopener">EE</a>: <code>GOOGLE/Research/open-buildings-temporal/v1</code>. CC BY 4.0 or ODbL.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> The result SR has to match or beat.</p><p class="try"><span class="lab">A decision to try</span>Which communes gained the most buildings from 2019 to 2023, and get their land-use plan updated first?</p></footer>
+</article>
+<article class="ds" id="d-globalbuildingatlas" data-fit="likely" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/articles/17/6647/2025/" target="_blank" rel="noopener">GlobalBuildingAtlas</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Building outlines, a 3 m height map, simple 3D models. Model-made from 3 m PlanetScope, joined with OpenStreetMap and Microsoft outlines.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2019.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://huggingface.co/datasets/zhu-xlab/GBA.LoD1" target="_blank" rel="noopener">Hugging Face</a>, 5° tiles (1 TB in all). <b>NC</b> (CC BY-NC 4.0; the OSM and Microsoft part is ODbL).</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which neighbourhoods have the densest or tallest buildings, for a fire-access survey?</p></footer>
+</article>
+<article class="ds" id="d-cbra-building-rooftops-of-china" data-fit="likely" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/articles/15/3547/2023/" target="_blank" rel="noopener">CBRA: building rooftops of China</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Rooftop map at 2.5 m, model-made from Sentinel-2 with its own super-resolution. F1 about 0.63.</p></div>
+    <div><span class="lab">Where, when</span><p>China only. Every year 2016–2021.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/7861676" target="_blank" rel="noopener">Zenodo</a>, 3.4–4.5 GB a year. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> The closest product to ours: compare, do not treat as truth.</p><p class="try"><span class="lab">A decision to try</span>Which townships at the city edge added most rooftops from 2018 to 2021?</p></footer>
+</article>
+<article class="ds" id="d-building-footprints-of-informal-settlements-dlr" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://geoservice.dlr.de/data-assets/2wrrj8cpaj88.html" target="_blank" rel="noopener">Building footprints of informal settlements (DLR)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p><b>Hand-drawn</b> buildings, blocks and outlines of 44 poor urban areas, with number of storeys.</p></div>
+    <div><span class="lab">Where, when</span><p>44 sites, 15 of them in Asia; going by the site names: Dhaka, Manila (Tondo, North Cemetery), Mumbai (Dharavi), Shenzhen, Ulaanbaatar. Images of 2002–2017, so mostly older than Sentinel-2.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://download.geoservice.dlr.de/BUILDING_FOOTPRINTS/files/" target="_blank" rel="noopener">Download folder</a>, Asia 13 MB. CC BY 4.0 on the page (its citation line says "all rights reserved").</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Blocks and outlines yes; single shacks (2–8 m) no.</p><p class="try"><span class="lab">A decision to try</span>Which mapped settlements have spread beyond their outline since they were mapped?</p></footer>
+</article>
+<article class="ds" id="d-coxs-bazar-refugee-camp-footprints" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://data.humdata.org/dataset/0e249814-fa99-4534-8aec-7d0ff50c1a63" target="_blank" rel="noopener">Cox's Bazar refugee camp footprints</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p><b>Hand-drawn</b> shelters, latrines and other structures, from drone images (UNOSAT, REACH).</p></div>
+    <div><span class="lab">Where, when</span><p>Rohingya camps, Bangladesh. October 2017, January 2019, March 2020, April 2021.</p></div>
+    <div><span class="lab">Get it</span><p>Shapefiles of about 18 MB for each date, on the same page. CC BY.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Camp extent and density yes; counting shelters (about 5 m) no.</p><p class="try"><span class="lab">A decision to try</span>Which camp blocks gained most roofs from 2019 to 2021, for new water points or fire breaks?</p></footer>
+</article>
+<article class="ds" id="d-euluc-globe-2024" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/17476574" target="_blank" rel="noopener">EULUC-Globe 2024</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Land use of each urban parcel: residential, commercial, industrial, transport, public. Model-made from Sentinel images and points of interest; about 76 % correct.</p></div>
+    <div><span class="lab">Where, when</span><p>Urban areas worldwide. 2024.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, Asia 5.8 GB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which parcels zoned residential show industrial use?</p></footer>
+</article>
+<article class="ds" id="d-global-map-of-local-climate-zones" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/6364593" target="_blank" rel="noopener">Global map of Local Climate Zones</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>17 types of urban form (compact low-rise, lightweight low-rise, open high-rise, …) at 100 m. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2018.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://developers.google.com/earth-engine/datasets/catalog/RUB_RUBCLIM_LCZ_global_lcz_map_latest" target="_blank" rel="noopener">EE</a>: <code>RUB/RUBCLIM/LCZ/global_lcz_map/latest</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Can SR tell lightweight from compact low-rise?</p><p class="try"><span class="lab">A decision to try</span>Which neighbourhoods get the cool-roof programme?</p></footer>
+</article>
+<article class="ds" id="d-gisa-10m-impervious-surface" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/articles/14/3649/2022/" target="_blank" rel="noopener">GISA-10m impervious surface</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Sealed ground (roofs, roads, paving), yes or no, at 10 m. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2016.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/5791855/latest" target="_blank" rel="noopener">Zenodo</a>, tiles of about 250 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which drainage areas are sealed above the design limit, for stormwater upgrades?</p></footer>
+</article>
+<article class="ds" id="d-oscd-urban-change" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://rcdaudt.github.io/oscd/" target="_blank" rel="noopener">OSCD urban change</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p><b>Hand-drawn</b> change masks (new buildings, new roads) on pairs of Sentinel-2 images.</p></div>
+    <div><span class="lab">Where, when</span><p>24 cities; in Asia: Mumbai, Chongqing, Hong Kong, Beihai. Pairs from 2015–2018, so only the later date can be super-resolved.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://partage.imt.fr/index.php/s/gKRaWgRnLMfwMGo" target="_blank" rel="noopener">Download</a>, 513 MB. Licence stated two ways (CC BY 4.0 and CC BY-NC-SA).</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> We have not measured change detection.</p><p class="try"><span class="lab">A decision to try</span>Can the city office flag new construction for permit follow-up?</p></footer>
+</article>
+</section>
+<section class="theme" id="roads-energy-and-facilities">
+<div class="sec-head"><h2>Roads, energy and facilities</h2><span class="n">5</span></div>
+<article class="ds" id="d-heigit-road-surface-width-and-passability" data-fit="likely" data-people="0">
+  <header><h3><a href="https://data.humdata.org/dataset/philippines-planet-road-surface-data" target="_blank" rel="noopener">HeiGIT road surface, width and passability</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Main roads from OpenStreetMap with paved or unpaved, a width class (under 3.5 m, 3.5–5.5 m, over 5.5 m) and a flag where an unpaved road was paved. Model-made from 3–4 m PlanetScope; 89 % correct.</p></div>
+    <div><span class="lab">Where, when</span><p>One file per country (the link is the Philippines; <a href="https://data.humdata.org/organization/heidelberg-institute-for-geoinformation-technology" target="_blank" rel="noopener">all countries</a>), including Thailand, Viet Nam, Cambodia, Bangladesh, India, Indonesia, Nepal, Fiji. 2020 and 2024.</p></div>
+    <div><span class="lab">Get it</span><p>GeoPackage: <a href="https://hot.storage.heigit.org/heigit-hdx-public/planet_road_data/heigit_PH_planet_roadsurface_lines.gpkg" target="_blank" rel="noopener">Philippines</a> 40 MB, Cambodia 3 MB, Bangladesh 9 MB. <b>NC.</b></p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which unpaved roads to the district hospital get paving money this year?</p></footer>
+</article>
+<article class="ds" id="d-microsoft-roaddetections" data-fit="likely" data-people="0">
+  <header><h3><a href="https://github.com/microsoft/RoadDetections" target="_blank" rel="noopener">Microsoft RoadDetections</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Road centre lines found by a model on sharp aerial and satellite images, with a rough width. Independent of OpenStreetMap.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Image dates unknown.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://usaminedroads.z19.web.core.windows.net/drops/2025.04.28/Southeastern_Asia.zip" target="_blank" rel="noopener">Southeast Asia</a> 697 MB; South Asia 1.5 GB. ODbL.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> for finding roads, not for drawing them.</p><p class="try"><span class="lab">A decision to try</span>Which roads missing from the official network do we verify in the field?</p></footer>
+</article>
+<article class="ds" id="d-global-renewables-watch" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://github.com/microsoft/global-renewables-watch" target="_blank" rel="noopener">Global Renewables Watch</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>86,410 solar farms (outlines) and 375,197 wind turbines (points), each with the quarter it was built. Model-made from 4.7 m PlanetScope.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. End of 2017 to mid-2024.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://github.com/microsoft/global-renewables-watch/releases/tag/v1.0" target="_blank" rel="noopener">Release files</a>: solar 377 MB, wind 55 MB. EE: <code>projects/sat-io/open-datasets/GRW/SOLAR_V1</code>. MIT.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Large farms show at 10 m; small ones (1–5 ha) may gain.</p><p class="try"><span class="lab">A decision to try</span>Which solar farms built since 2020 need a land-use check?</p></footer>
+</article>
+<article class="ds" id="d-predicted-power-lines-gridfinder" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/3628142" target="_blank" rel="noopener">Predicted power lines (gridfinder)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Predicted medium-voltage lines, with the lines already in OpenStreetMap marked. Model-made, not from images.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Published 2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 725 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> You see the cleared strip and tower bases, not the wires.</p><p class="try"><span class="lab">A decision to try</span>Which villages are within 2 km of a line, and which need a mini-grid?</p></footer>
+</article>
+<article class="ds" id="d-healthsites" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://healthsites.io/" target="_blank" rel="noopener">Healthsites</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Hospitals and clinics from OpenStreetMap, as points and outlines. How complete it is varies by country.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Updated all the time.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://gee-community-catalog.org/projects/health_sites/" target="_blank" rel="noopener">EE</a>: <code>projects/sat-io/open-datasets/health-site-node</code>. ODbL.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which listed rural health stations exist and can be reached by road?</p></footer>
+</article>
+</section>
+<section class="theme" id="farming">
+<div class="sec-head"><h2>Farming</h2><span class="n">10</span></div>
+<article class="ds" id="d-fields-of-the-world-global-predictions" data-fit="likely" data-people="0">
+  <header><h3><a href="https://source.coop/ftw/global-data" target="_blank" rel="noopener">Fields of The World, global predictions</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Field outlines everywhere, model-made from 10 m Sentinel-2. In Asia the model was trained only on Cambodia, Viet Nam and India; fields under 900 m² are dropped.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. One set a year, 2017–2025.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://data.source.coop/ftw/global-data-2e/README.md" target="_blank" rel="noopener">Read me</a> (GeoParquet by UTM zone). CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> The 10 m result that SR stage 1 has to beat; not the truth.</p><p class="try"><span class="lab">A decision to try</span>Which sub-districts have the most out-of-date farm registry?</p></footer>
+</article>
+<article class="ds" id="d-10000-crop-field-boundaries-across-india" data-fit="likely" data-people="1">
+  <header><h3><a href="https://zenodo.org/record/7315090" target="_blank" rel="noopener">10,000 crop field boundaries across India</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p><b>Hand-drawn</b> field outlines on 1.5 m SPOT images. The middle-sized field is about 50 m across.</p></div>
+    <div><span class="lab">Where, when</span><p>India. 2016, so use the earliest SR dates (2017).</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://source.coop/kerner-lab/fieldscapes-india" target="_blank" rel="noopener">Source Cooperative</a>, 7.5 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> The cleanest test of what we measured for small farms.</p><p class="try"><span class="lab">A decision to try</span>Can SR replace bought images for a land-records survey?</p></footer>
+</article>
+<article class="ds" id="d-agrifieldnet" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://source.coop/radiantearth/agrifieldnet-competition" target="_blank" rel="noopener">AgriFieldNet</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Crop type of surveyed fields, 13 crops (wheat, mustard, lentil, sugarcane, …), from <b>ground surveys</b>, on a 10 m grid.</p></div>
+    <div><span class="lab">Where, when</span><p>Northern India (Uttar Pradesh, Rajasthan, Odisha, Bihar). Survey year not stated.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://data.source.coop/radiantearth/agrifieldnet-competition/" target="_blank" rel="noopener">Files</a>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Crop type needs colour and season, which SR does not add; small fields may gain purer pixels.</p><p class="try"><span class="lab">A decision to try</span>Which villages get the wheat crop-cutting surveys?</p></footer>
+</article>
+<article class="ds" id="d-worldcereal-reference-data" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://rdm.esa-worldcereal.org/" target="_blank" rel="noopener">WorldCereal reference data</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>271 collections of surveyed points and fields with crop type. In Asia: Pakistan 2022–23 (field survey), Indonesia 2023, Nepal, Sri Lanka, India.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2018–2023 for the Asian sets.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://ewoc-rdm-api.iiasa.ac.at/collections" target="_blank" rel="noopener">List of collections</a> (GeoJSON, no login). Licence differs by collection.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> The 2021 rice points for Southeast Asia are taken from maps, not surveys, and are NC.</p><p class="try"><span class="lab">A decision to try</span>Is the provincial crop map good enough for subsidy allocation?</p></footer>
+</article>
+<article class="ds" id="d-open-sea-rice-10" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/14627003" target="_blank" rel="noopener">Open-SEA-Rice-10</a> and <a href="https://zenodo.org/records/20923150" target="_blank" rel="noopener">Open-SARice-10</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Rice fields at 10 m, with single, double or triple cropping. Model-made from Sentinel-1 and Sentinel-2.</p></div>
+    <div><span class="lab">Where, when</span><p>Southeast Asia (9 countries) and South Asia (6 countries, with Bangladesh). 2021.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 547 MB and about 1 GB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Large paddies do not need SR; small split-up paddies may.</p><p class="try"><span class="lab">A decision to try</span>Which irrigation schemes are double-cropped, for dry-season water?</p></footer>
+</article>
+<article class="ds" id="d-esa-worldcereal-2021" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/7875105" target="_blank" rel="noopener">ESA WorldCereal 2021</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Cropland, maize, cereals and irrigation at 10 m. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2021.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://developers.google.com/earth-engine/datasets/catalog/ESA_WorldCereal_2021_MODELS_v100" target="_blank" rel="noopener">EE</a>: <code>ESA/WorldCereal/2021/MODELS/v100</code> (the download is 237 GB). CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Where do cropland statistics disagree most with the satellite map?</p></footer>
+</article>
+<article class="ds" id="d-sea_cropland10" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/preprints/essd-2026-78/" target="_blank" rel="noopener">SEA_Cropland10</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Cropland, yes or no, at 10 m. Model-made. The paper is still under review.</p></div>
+    <div><span class="lab">Where, when</span><p>Southeast Asia. Every year 2019–2025.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/19303406" target="_blank" rel="noopener">Zenodo</a>, about 1.5 GB a year. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Where has upland cropland moved into forest since 2019?</p></footer>
+</article>
+<article class="ds" id="d-global-pcg-10-greenhouses" data-fit="likely" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/articles/17/5065/2025/" target="_blank" rel="noopener">Global-PCG-10 greenhouses</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Plastic-covered greenhouses at 10 m. Model-made; it misses about 15 %.</p></div>
+    <div><span class="lab">Where, when</span><p>Global; most are in China; Viet Nam (Lam Dong) is named. 2020.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://doi.org/10.6084/m9.figshare.27731148.v2" target="_blank" rel="noopener">figshare</a>, 326 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Bright, regular, a few metres wide.</p><p class="try"><span class="lab">A decision to try</span>Which districts with fast greenhouse growth get their water permits checked?</p></footer>
+</article>
+<article class="ds" id="d-glad-annual-cropland" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://glad.geog.umd.edu/dataset/annual-croplands" target="_blank" rel="noopener">GLAD annual cropland</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Cropland, yes or no, at 30 m. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Every year 2015–2024.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://glad.umd.edu/datasets/annual-croplands/" target="_blank" rel="noopener">Tiles</a>. EE: <code>projects/glad/Cropland_Annual_2015_2024/2024</code>. No licence stated.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Coarser than Sentinel-2; use it to find where cropland came or went.</p><p class="try"><span class="lab">A decision to try</span>Which districts lost most farmland since 2015?</p></footer>
+</article>
+<article class="ds" id="d-shifting-cultivation-in-laos" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/7782782" target="_blank" rel="noopener">Shifting cultivation in Laos</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Shifting cultivation, deforestation, plantations, at 30 m. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Laos. Every year 1991–2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 786 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Clearings are 30 m and more.</p><p class="try"><span class="lab">A decision to try</span>Which villages come first in land-use planning?</p></footer>
+</article>
+</section>
+<section class="theme" id="trees-and-plantations">
+<div class="sec-head"><h2>Trees and plantations</h2><span class="n">8</span></div>
+<article class="ds" id="d-canopy-height-at-1-m-meta-and-wri" data-fit="likely" data-people="0">
+  <header><h3><a href="https://registry.opendata.aws/dataforgood-fb-forestsv2/" target="_blank" rel="noopener">Canopy height at 1 m (Meta and WRI)</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Tree height for every square metre, model-made from 0.5 m satellite images. Cut it at a few metres to get a tree mask.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Images mostly from 2018–2020; the date of each tile is given.</p></div>
+    <div><span class="lab">Get it</span><p>AWS, no account needed (<a href="https://registry.opendata.aws/dataforgood-fb-forests/" target="_blank" rel="noopener">version 1</a>). EE: <code>projects/sat-io/open-datasets/facebook/meta-canopy-height</code>. CC BY 4.0 (the paper of version 2 names another licence: check).</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> The best check of whether SR finds trees and gaps that 10 m misses.</p><p class="try"><span class="lab">A decision to try</span>Which wards fall below the tree-cover target and get the planting budget?</p></footer>
+</article>
+<article class="ds" id="d-tropical-tree-cover-wri" data-fit="likely" data-people="0">
+  <header><h3><a href="https://datasets.wri.org/datasets/tropical-tree-cover" target="_blank" rel="noopener">Tropical Tree Cover (WRI)</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Trees at 10 m, made to catch trees on farms, in towns and in open woodland. Model-made from Sentinel-1 and Sentinel-2.</p></div>
+    <div><span class="lab">Where, when</span><p>The tropics, 23° S to 23° N: Philippines, Thailand, Cambodia, Viet Nam, Indonesia, southern Bangladesh and India. 2020.</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>projects/wri-datalab/TropicalTreeCover</code> (<a href="https://github.com/wri/sentinel-tree-cover" target="_blank" rel="noopener">code and notes</a>). CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Small, mixed features: where SR helped land cover.</p><p class="try"><span class="lab">A decision to try</span>Which villages lost farm trees and get the agroforestry incentive first?</p></footer>
+</article>
+<article class="ds" id="d-farmland-trees-in-india" data-fit="likely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/11393984" target="_blank" rel="noopener">Farmland trees in India</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>About half a billion single large farm trees (crowns of 9–11 m), found each year. Model-made from 3 m PlanetScope.</p></div>
+    <div><span class="lab">Where, when</span><p>India, farmland. 2018–2022.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 89 archives of about 1.7 GB: take the one for your area. CC BY 4.0 on the record; its text asks for non-commercial research use.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which districts lost most large farm trees since 2018?</p></footer>
+</article>
+<article class="ds" id="d-eth-global-canopy-height-10-m" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://langnico.github.io/globalcanopyheight" target="_blank" rel="noopener">ETH global canopy height, 10 m</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Tree height at 10 m, model-made from Sentinel-2 and space lidar.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2020.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://langnico.github.io/globalcanopyheight/assets/tile_index.html" target="_blank" rel="noopener">Tiles</a>, about 11 MB each. EE: <code>users/nlang/ETH_GlobalCanopyHeight_2020_10m_v1</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> It shows what free 10 m data can do; use it next to the 1 m map.</p><p class="try"><span class="lab">A decision to try</span>Which forest blocks over 15 m go on the no-conversion list?</p></footer>
+</article>
+<article class="ds" id="d-oil-palm-extent-and-planting-year" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/13379129" target="_blank" rel="noopener">Oil palm extent and planting year</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Oil palm at 10 m, industrial or smallholder, and the year of planting. Model-made; smallholder plots are right about 71 % of the time. Comes with 18,812 check points.</p></div>
+    <div><span class="lab">Where, when</span><p>Global; mostly Indonesia and Malaysia. 2021.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 304 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Large estates do not need SR; small plots and young palms may.</p><p class="try"><span class="lab">A decision to try</span>Which smallholder villages have palms past replanting age?</p></footer>
+</article>
+<article class="ds" id="d-global-coconut-layer" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/8128183" target="_blank" rel="noopener">Global coconut layer</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Coconut at 20 m. Model-made; it misses most scattered palms. Comes with 10,200 check points.</p></div>
+    <div><span class="lab">Where, when</span><p>Global; mostly Indonesia, the Philippines, India. 2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 45 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Scattered palm crowns are 2.5–10 m: use the check points.</p><p class="try"><span class="lab">A decision to try</span>Which barangays join the coconut replanting programme?</p></footer>
+</article>
+<article class="ds" id="d-forest-data-partnership-crop-probabilities" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://developers.google.com/earth-engine/datasets/publisher/forestdatapartnership" target="_blank" rel="noopener">Forest Data Partnership crop probabilities</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Chance that a 10 m cell is oil palm, rubber, cocoa or coffee, by year. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>The tropics, 24° S to 24° N. 2018–2024.</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>projects/forestdatapartnership/assets/palm/model_2026a</code>, <code>…/rubber/model_2026a</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which supplier plots do we screen first for deforestation-free trade rules?</p></footer>
+</article>
+<article class="ds" id="d-rubber-in-southeast-asia" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/21439869" target="_blank" rel="noopener">Rubber in Southeast Asia</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Rubber plantations at 10 m. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Thailand, Myanmar, Laos, Viet Nam, Cambodia, Malaysia, Indonesia, southern China. About 2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 2.3 GB. EE: <code>projects/rubber-499107/assets/rubber_SEA_2020</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Rubber is told from other trees by its leaf fall, which SR does not show.</p><p class="try"><span class="lab">A decision to try</span>Which rubber districts do we audit first?</p></footer>
+</article>
+</section>
+<section class="theme" id="land-cover-and-forests">
+<div class="sec-head"><h2>Land cover and forests</h2><span class="n">9</span></div>
+<article class="ds" id="d-esa-worldcover" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://esa-worldcover.org/en" target="_blank" rel="noopener">ESA WorldCover</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Land cover at 10 m, 11 classes. Model-made; about 75 % correct.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2020 and 2021.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://esa-worldcover.org/en/data-access" target="_blank" rel="noopener">Data access</a>. EE: <code>ESA/WorldCover/v200</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> A 10 m map can check SR at 10 m, not below.</p><p class="try"><span class="lab">A decision to try</span>Which plots at the city edge are still cropland?</p></footer>
+</article>
+<article class="ds" id="d-dynamic-world" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_DYNAMICWORLD_V1" target="_blank" rel="noopener">Dynamic World</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Land cover for every Sentinel-2 image, 9 classes with a probability for each. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. June 2015 to today.</p></div>
+    <div><span class="lab">Get it</span><p>EE only: <code>GOOGLE/DYNAMICWORLD/V1</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> A 10 m map of the same date as your SR image.</p><p class="try"><span class="lab">A decision to try</span>Which hectares turned from crops to bare or built land in three months?</p></footer>
+</article>
+<article class="ds" id="d-dynamic-world-labelled-tiles" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://doi.pangaea.de/10.1594/PANGAEA.933475" target="_blank" rel="noopener">Dynamic World labelled tiles</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p><b>Hand-labelled</b> land cover on about 24,000 Sentinel-2 tiles of 5 km, 10 classes, with the date of each image.</p></div>
+    <div><span class="lab">Where, when</span><p>Global sample. Mostly 2019.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://download.pangaea.de/dataset/933475/files/validation_set_tiles.zip" target="_blank" rel="noopener">Validation tiles</a>, 29 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> You can ask for SR of the exact date; labels are at 10 m.</p><p class="try"><span class="lab">A decision to try</span>Is an SR land-cover map good enough to replace photo-interpretation?</p></footer>
+</article>
+<article class="ds" id="d-radd-forest-disturbance-alerts" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://www.wur.nl/en/research/products-services/radd-forest-disturbance-alert" target="_blank" rel="noopener">RADD forest disturbance alerts</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>New clearings in humid tropical forest at 10 m, with a date, from radar. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>About 50 countries; Indonesia and Malaysia confirmed. Since January 2020 in Southeast Asia.</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>projects/radar-wur/raddalert/v1</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Use stage 1 with stage 1; stage 1 blends dates, so watch the date range.</p><p class="try"><span class="lab">A decision to try</span>Which alerts in a forest reserve get a patrol first?</p></footer>
+</article>
+<article class="ds" id="d-jrc-tropical-moist-forest" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://forobs.jrc.ec.europa.eu/TMF" target="_blank" rel="noopener">JRC Tropical Moist Forest</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Forest, degraded forest (with selective logging), deforestation and regrowth at 30 m, and the year of each. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Humid tropics. 1990–2025.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://forobs.jrc.ec.europa.eu/TMF/data" target="_blank" rel="noopener">Tiles</a>. EE: <code>projects/JRC/TMF/v1_2025/AnnualChanges</code>. Free, no restriction.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> It shows where to look; logging tracks of 5–30 m are what SR may add.</p><p class="try"><span class="lab">A decision to try</span>Which forest units show new logging and need a permit audit?</p></footer>
+</article>
+<article class="ds" id="d-drainage-canals-in-southeast-asian-peatlands" data-fit="likely" data-people="0">
+  <header><h3><a href="https://purl.stanford.edu/yj761xk5815" target="_blank" rel="noopener">Drainage canals in Southeast Asian peatlands</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Canals and tracks on peat at 5 m, model-made from Planet images.</p></div>
+    <div><span class="lab">Where, when</span><p>Borneo, Sumatra, Peninsular Malaysia. Mid-2017.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://stacks.stanford.edu/file/druid:yj761xk5815/geotiffs.zip" target="_blank" rel="noopener">Download</a>, 227 MB. CC BY 3.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Thin lines of 2.5–10 m, like roads.</p><p class="try"><span class="lab">A decision to try</span>Which peat blocks have new canals since 2017 and get canal blocking?</p></footer>
+</article>
+<article class="ds" id="d-protected-areas-wdpa" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://www.protectedplanet.net/en/thematic-areas/wdpa" target="_blank" rel="noopener">Protected areas (WDPA)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Official boundaries of more than 200,000 protected areas, with type and year.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Updated monthly.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://developers.google.com/earth-engine/datasets/catalog/WCMC_WDPA_current_polygons" target="_blank" rel="noopener">EE</a>: <code>WCMC/WDPA/current/polygons</code>. <b>Not an open licence:</b> NC, and you may not pass it on.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> The boundary is the frame; the test is what SR shows inside it.</p><p class="try"><span class="lab">A decision to try</span>Which protected areas show new clearings or tracks and get a ranger patrol?</p></footer>
+</article>
+<article class="ds" id="d-global-wetlands-30-m-gwl_fcs30d" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/10068479" target="_blank" rel="noopener">Global wetlands, 30 m (GWL_FCS30D)</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Wetlands in 8 types (swamp, marsh, mangrove, tidal flat, …). Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Every year 2000–2022.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 2.5 GB a year. EE: <code>projects/sat-io/open-datasets/GWL_FCS30</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which wetland plots were filled or turned into fishponds since 2016?</p></footer>
+</article>
+<article class="ds" id="d-burned-area-of-indonesia-2019" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://essd.copernicus.org/articles/13/5353/2021/" target="_blank" rel="noopener">Burned area of Indonesia, 2019</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Burn scars at 20 m, model-made from Sentinel-2, with 1,298 hand-checked points.</p></div>
+    <div><span class="lab">Where, when</span><p>Indonesia. 2019.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/4551243" target="_blank" rel="noopener">Zenodo</a>, 73 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Scars are 6 ha and more, and need bands that SR does not have.</p><p class="try"><span class="lab">A decision to try</span>Which burned peat areas are rewetted first?</p></footer>
+</article>
+</section>
+<section class="theme" id="mines-kilns-and-waste-sites">
+<div class="sec-head"><h2>Mines, kilns and waste sites</h2><span class="n">4</span></div>
+<article class="ds" id="d-global-mining-footprint-tang-and-werner" data-fit="likely" data-people="1">
+  <header><h3><a href="https://zenodo.org/records/7894216" target="_blank" rel="noopener">Global mining footprint (Tang and Werner)</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>74,548 <b>hand-drawn</b> outlines of pits, tailings dams, waste dumps and ponds, on sharp images.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Image years not stated.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 320 MB. EE: <code>projects/sat-io/open-datasets/global-mining/global_mining_footprints</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Sharp edges: a strict test of outlines.</p><p class="try"><span class="lab">A decision to try</span>Which tailings dams within 1 km of a village are inspected first?</p></footer>
+</article>
+<article class="ds" id="d-global-mining-polygons-version-2-maus" data-fit="likely" data-people="1">
+  <header><h3><a href="https://doi.pangaea.de/10.1594/PANGAEA.942325" target="_blank" rel="noopener">Global mining polygons, version 2 (Maus)</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>44,929 <b>hand-drawn</b> outlines of mining land, with small-scale mining, and 1,000 check points. Drawn on 10 m Sentinel-2.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2019.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://download.pangaea.de/dataset/942325/files/global_mining_polygons_v2.gpkg" target="_blank" rel="noopener">GeoPackage</a>, 24 MB. CC BY-SA 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which mines have grown beyond their 2019 outline or permit?</p></footer>
+</article>
+<article class="ds" id="d-sentinelkilndb-brick-kilns" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://sustainability-lab.github.io/sentinelkilndb" target="_blank" rel="noopener">SentinelKilnDB brick kilns</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>62,671 brick kilns of three types, checked by hand, as boxes on Sentinel-2 image chips. The chips are pictures; the place is only in the file name.</p></div>
+    <div><span class="lab">Where, when</span><p>India, Pakistan, Bangladesh, Afghanistan. Winter 2023–24.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://huggingface.co/datasets/SustainabilityLabIITGN/SentinelKilnDB" target="_blank" rel="noopener">Hugging Face</a>. <b>NC.</b></p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Kilns show at 10 m; SR may tell the types apart.</p><p class="try"><span class="lab">A decision to try</span>Which kiln clusters still use the old firing method?</p></footer>
+</article>
+<article class="ds" id="d-climate-trace-solid-waste-sites" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://climatetrace.org/data" target="_blank" rel="noopener">Climate TRACE solid-waste sites</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>13,656 dumpsites and landfills as points, with estimated emissions. Places are approximate.</p></div>
+    <div><span class="lab">Where, when</span><p>Global: Philippines 109, Thailand 86, Viet Nam 72, Cambodia 22, Indonesia 225, India 532, Bangladesh 1.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/24505895" target="_blank" rel="noopener">Zenodo</a>, the solid-waste file is 110 MB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which open dumpsites have grown in the past year?</p></footer>
+</article>
+</section>
+<section class="theme" id="coasts">
+<div class="sec-head"><h2>Coasts</h2><span class="n">11</span></div>
+<p class="about">SR removes detail in shallow water, and the tide moves the waterline by more than an SR pixel. The reef and seagrass rows are here as tests of where <b>not</b> to use SR.</p>
+<article class="ds" id="d-openstreetmap-coast-and-coastal-structures" data-fit="likely" data-people="0">
+  <header><h3><a href="https://osmdata.openstreetmap.de/data/water-polygons.html" target="_blank" rel="noopener">OpenStreetMap coast and coastal structures</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>The coastline, and breakwaters, groynes, piers and dykes drawn by volunteers on sharp images. How complete it is varies a lot.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Updated daily.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://download.geofabrik.de/asia.html" target="_blank" rel="noopener">Country files</a> (Cambodia 39 MB, Philippines 587 MB), or the QuickOSM plug-in of QGIS for a small area. ODbL.</p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Structures are 3–20 m wide.</p><p class="try"><span class="lab">A decision to try</span>Which fish-landing sites have jetties missing from the asset register?</p></footer>
+</article>
+<article class="ds" id="d-aquaculture-ponds-2020" data-fit="likely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/5643036" target="_blank" rel="noopener">Aquaculture ponds, 2020</a></h3><span class="tags"><span class="fit likely">SR fit: Likely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Areas of fish and shrimp ponds at 10 m (areas, not single ponds). Model-made from Sentinel-2.</p></div>
+    <div><span class="lab">Where, when</span><p>Global: Viet Nam 7,063 km², Indonesia 6,276, Bangladesh 3,058, Thailand 1,769, Philippines 1,337, Cambodia 166. 2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 55 MB. <b>No licence stated.</b></p></div>
+  </div>
+  <footer><p class="why"><b>Likely:</b> Pond dykes are 2–5 m: SR may separate single ponds.</p><p class="try"><span class="lab">A decision to try</span>Which coastal districts need a pond-licence inspection?</p></footer>
+</article>
+<article class="ds" id="d-global-mangrove-watch-version-4" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/12756047" target="_blank" rel="noopener">Global Mangrove Watch, version 4</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Mangroves at 10 m for 2020, and <a href="https://zenodo.org/records/21346457" target="_blank" rel="noopener">a map for every year 1985–2025</a>. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 573 MB (2020). EE: <code>projects/sat-io/open-datasets/GMW/annual-extent/GMW_MNG_2020</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Large stands do not need SR; thin strips along creeks and pond dykes may.</p><p class="try"><span class="lab">A decision to try</span>Which villages get mangrove replanting, by loss since 2017?</p></footer>
+</article>
+<article class="ds" id="d-digital-earth-pacific-mangroves" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://stac.digitalearthpacific.org/collections/dep_s2_mangroves" target="_blank" rel="noopener">Digital Earth Pacific mangroves</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Mangrove extent and density at 10 m. Model-made from Sentinel-2.</p></div>
+    <div><span class="lab">Where, when</span><p>Pacific islands. Every year 2017–2025.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://stac.digitalearthpacific.org/collections/dep_s2_mangroves/items" target="_blank" rel="noopener">Tiles</a>, no account needed. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Island mangrove fringes are often only 10–30 m wide.</p><p class="try"><span class="lab">A decision to try</span>Which fringes have thinned since 2017?</p></footer>
+</article>
+<article class="ds" id="d-s2coast-2023-coastline" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/doi/10.5281/zenodo.17092775" target="_blank" rel="noopener">S2Coast-2023 coastline</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>The high-water line of the whole world from Sentinel-2. Model-made; its typical error is about 17 m.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2023.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 1.5 GB. EE: <code>projects/sat-io/open-datasets/S2COAST-2023</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> It locates the coast; it cannot score a gain of a few metres.</p><p class="try"><span class="lab">A decision to try</span>Which stretches need a new official shoreline?</p></footer>
+</article>
+<article class="ds" id="d-digital-earth-pacific-shorelines" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://registry.opendata.aws/dep-coastlines/" target="_blank" rel="noopener">Digital Earth Pacific shorelines</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>A shoreline for each year and rate-of-change points every 30 m. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Pacific islands only. 2000–2023.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://s3.us-west-2.amazonaws.com/dep-public-data/dep_ls_coastlines/dep_ls_coastlines_0-7-0-55.gpkg" target="_blank" rel="noopener">GeoPackage</a>, 2 GB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Change is often a few metres a year; the tide adds as much noise.</p><p class="try"><span class="lab">A decision to try</span>Which villages get an erosion survey?</p></footer>
+</article>
+<article class="ds" id="d-tidal-wetlands-and-neighbours-2020" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/18738617" target="_blank" rel="noopener">Tidal wetlands and neighbours, 2020</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Coastal land cover in 11 classes: tidal flats, fishponds, marshes, mangroves, … Model-made. Comes with the tide level of each Sentinel-2 image.</p></div>
+    <div><span class="lab">Where, when</span><p>The world's coastal zone. 2019–2021.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 3.8 GB. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Ponds and mangrove edges may gain; tidal flats will not.</p><p class="try"><span class="lab">A decision to try</span>Which flats proposed for reclamation are still bird feeding grounds?</p></footer>
+</article>
+<article class="ds" id="d-offshore-structures-global-fishing-watch" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://globalfishingwatch.org/platform-update/2024-june-data-download-portal-global-dataset-release-fixed-infrastructure-detections-from-sentinel-1-and-sentinel-2" target="_blank" rel="noopener">Offshore structures (Global Fishing Watch)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Points of oil platforms, wind turbines and other fixed structures at sea, from radar. Leaves out the first kilometre from the shore.</p></div>
+    <div><span class="lab">Where, when</span><p>Global coastal seas. From 2017.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://globalfishingwatch.org/data-download/datasets/public-fixed-infrastructure:v1.1" target="_blank" rel="noopener">Download portal</a>, free account. <b>NC</b> by the site's general licence.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Over open water stage 2 may invent detail.</p><p class="try"><span class="lab">A decision to try</span>Which structures built since 2017 need a safety inspection?</p></footer>
+</article>
+<article class="ds" id="d-tidal-wetland-change-murray" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://developers.google.com/earth-engine/datasets/catalog/JCU_Murray_GIC_global_tidal_wetland_change_2019" target="_blank" rel="noopener">Tidal wetland change (Murray)</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Loss and gain of tidal flats, mangroves and marshes at 30 m. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 1999–2019.</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>JCU/Murray/GIC/global_tidal_wetland_change/2019</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which reclamation sites since 2017 need a permit check?</p></footer>
+</article>
+<article class="ds" id="d-allen-coral-atlas" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://developers.google.com/earth-engine/datasets/catalog/ACA_reef_habitat_v2_0" target="_blank" rel="noopener">Allen Coral Atlas</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Reef zones and sea-floor types (sand, rubble, seagrass, coral) at 5 m. Model-made from Planet images.</p></div>
+    <div><span class="lab">Where, when</span><p>Shallow tropical reefs worldwide. 2018–2020.</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>ACA/reef_habitat/v2_0</code>. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> A test of where not to use SR.</p><p class="try"><span class="lab">A decision to try</span>Which reef flats are kept out of a dredging corridor?</p></footer>
+</article>
+<article class="ds" id="d-global-distribution-of-seagrasses" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://sextant.ifremer.fr/geonetwork/srv/api/records/9e5e5d26-eea9-4729-a7bc-4f13223e0cf2" target="_blank" rel="noopener">Global distribution of seagrasses</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Seagrass points and areas, put together from many surveys. Patchy in Southeast Asia.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Surveys of 1934–2020.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://wcmc.io/WCMC_013_014" target="_blank" rel="noopener">Download</a>, 486 MB. UNEP-WCMC licence (ask before commercial use).</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> A test of where not to use SR.</p><p class="try"><span class="lab">A decision to try</span>Which bays are flagged "check seagrass first"?</p></footer>
+</article>
+</section>
+<section class="theme" id="inland-water">
+<div class="sec-head"><h2>Inland water</h2><span class="n">3</span></div>
+<p class="about">For flood water we measured no gain from SR. Small ponds and canals are the open question.</p>
+<article class="ds" id="d-jrc-global-surface-water" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener">JRC Global Surface Water</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>How often each 30 m cell was water, by season and by year, and where water appeared or went. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 1984–2021 (the download site goes to 2024).</p></div>
+    <div><span class="lab">Get it</span><p>10° tiles. <a href="https://developers.google.com/earth-engine/datasets/catalog/JRC_GSW1_4_GlobalSurfaceWater" target="_blank" rel="noopener">EE</a>: <code>JRC/GSW1_4/GlobalSurfaceWater</code>. Free; credit "EC JRC/Google".</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Ponds and canals of 5–30 m are missing from a 30 m map.</p><p class="try"><span class="lab">A decision to try</span>Which farm ponds hold water through the dry season?</p></footer>
+</article>
+<article class="ds" id="d-s1s2-water" data-fit="unlikely" data-people="1">
+  <header><h3><a href="https://zenodo.org/records/11278238" target="_blank" rel="noopener">S1S2-Water</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>65 whole Sentinel-2 tiles with <b>hand-labelled</b> water masks.</p></div>
+    <div><span class="lab">Where, when</span><p>29 countries. 2018–2020.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 166 GB in six parts: large. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> A control: does SR make a water mask worse?</p></footer>
+</article>
+<article class="ds" id="d-global-river-widths-grwl" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://zenodo.org/records/1297434" target="_blank" rel="noopener">Global river widths (GRWL)</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>River centre lines with their width, for rivers of 30 m and more. Model-made from Landsat.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Published 2018.</p></div>
+    <div><span class="lab">Get it</span><p>Zenodo, 43 MB for the summary file. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="try"><span class="lab">A decision to try</span>Which river reaches near towns have shifted their banks?</p></footer>
+</article>
+</section>
+<section class="theme" id="disasters">
+<div class="sec-head"><h2>Disasters</h2><span class="n">6</span></div>
+<p class="about">SR did not help us map flood water or grade damage to buildings. The flood rows are here to find <b>when and where</b> something happened, so that you can ask for images before and after.</p>
+<article class="ds" id="d-dated-landslides-since-2016-gfz" data-fit="maybe" data-people="0">
+  <header><h3><a href="https://dataservices.gfz.de/10.5880/gfz.1.4.2023.005/global-dated-landslide-data-base-during-sentinel" target="_blank" rel="noopener">Dated landslides since 2016 (GFZ)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Landslide outlines with a date, from 17 published inventories, checked on Sentinel-2 and Planet images.</p></div>
+    <div><span class="lab">Where, when</span><p>Global; in Asia-Pacific: Philippines, Japan, Nepal, China, southern India, Indonesia, Papua New Guinea, New Zealand. From 2016.</p></div>
+    <div><span class="lab">Get it</span><p>On the page. CC BY 4.0.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Large scars show at 10 m; small ones (about 1,000 m²) are where SR may help.</p><p class="try"><span class="lab">A decision to try</span>Which mountain roads get slope inspections after the monsoon?</p></footer>
+</article>
+<article class="ds" id="d-landslides-of-the-arun-basin-by-year-nasa" data-fit="maybe" data-people="1">
+  <header><h3><a href="https://nsidc.org/data/hma2_mtli/versions/1" target="_blank" rel="noopener">Landslides of the Arun basin, by year (NASA)</a></h3><span class="tags"><span class="fit maybe">SR fit: Maybe</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>New landslides of each year, <b>corrected by hand</b> on 5 m images.</p></div>
+    <div><span class="lab">Where, when</span><p>Nepal and Tibet (Arun river basin). 2011–2020; use 2017–2020.</p></div>
+    <div><span class="lab">Get it</span><p>One shapefile; free NASA Earthdata login. No licence stated; cite it.</p></div>
+  </div>
+  <footer><p class="why"><b>Maybe:</b> Labels from 5 m images: a fair test between 2.5 m and 10 m.</p><p class="try"><span class="lab">A decision to try</span>Which villages are screened before the next monsoon?</p></footer>
+</article>
+<article class="ds" id="d-copernicus-ems-rapid-mapping" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://mapping.emergency.copernicus.eu/activations/EMSR312/" target="_blank" rel="noopener">Copernicus EMS rapid mapping</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Flood outlines and damage grades drawn by analysts after a disaster, one package per event. The link is Typhoon Mangkhut (Ompong), Philippines, 2018.</p></div>
+    <div><span class="lab">Where, when</span><p>Worldwide, by event.</p></div>
+    <div><span class="lab">Get it</span><p>Vector package on each event page. Free; name the source.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Use it to find places and dates.</p><p class="try"><span class="lab">A decision to try</span>Which towns get the first shelter-repair teams?</p></footer>
+</article>
+<article class="ds" id="d-copernicus-global-flood-monitoring" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://global-flood.emergency.copernicus.eu/technical-information/glofas-gfm/" target="_blank" rel="noopener">Copernicus Global Flood Monitoring</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>A flood map for every Sentinel-1 radar image, at 20 m. Model-made.</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 2015 to today.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://portal.gfm.eodc.eu/" target="_blank" rel="noopener">Portal</a>, free account. Licence of the data not stated.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Use it to find when a place flooded.</p><p class="try"><span class="lab">A decision to try</span>Which districts flooded most often since 2015?</p></footer>
+</article>
+<article class="ds" id="d-sen1floods11" data-fit="unlikely" data-people="1">
+  <header><h3><a href="https://github.com/cloudtostreet/Sen1Floods11" target="_blank" rel="noopener">Sen1Floods11</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span><span class="mark people">Labels by people</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>446 <b>hand-labelled</b> flood chips on Sentinel-1 and Sentinel-2, plus 4,385 chips labelled by rule.</p></div>
+    <div><span class="lab">Where, when</span><p>12 places; in Asia: India 2016, Sri Lanka 2017, Pakistan 2017, Cambodia 2018.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://storage.googleapis.com/sen1floods11/v1.1/Sen1Floods11_Metadata.geojson" target="_blank" rel="noopener">List of chips</a>; 14 GB in all. No licence stated.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> A control: does SR make a water map worse?</p></footer>
+</article>
+<article class="ds" id="d-bright-building-damage" data-fit="unlikely" data-people="0">
+  <header><h3><a href="https://github.com/ChenHongruixuan/BRIGHT" target="_blank" rel="noopener">BRIGHT building damage</a></h3><span class="tags"><span class="fit unlikely">SR fit: Unlikely</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it maps</span><p>Damage of 380,000 buildings (intact, damaged, destroyed) in 14 events, on images of 0.3–1 m.</p></div>
+    <div><span class="lab">Where, when</span><p>Global; in Asia: Noto earthquake (Japan, 2024). 2020–2024.</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://zenodo.org/records/14619797" target="_blank" rel="noopener">Zenodo</a>, 26 GB. Mixed licence, mostly <b>NC</b>.</p></div>
+  </div>
+  <footer><p class="why"><b>Unlikely:</b> Damage to a roof is smaller than an SR pixel.</p><p class="try"><span class="lab">A decision to try</span>Do destroyed blocks show up as change at all?</p></footer>
+</article>
+</section>
+<section class="theme" id="context-people-money-risk">
+<div class="sec-head"><h2>Context: people, money, risk</h2><span class="n">8</span></div>
+<p class="about">These do not test SR. They help you choose where to look, or weigh a decision.</p>
+<article class="ds" id="d-worldpop-population-100-m" data-fit="context" data-people="0">
+  <header><h3><a href="https://hub.worldpop.org/geodata/listing?id=135" target="_blank" rel="noopener">WorldPop population, 100 m</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>People per 100 m cell, estimated from census counts</p></div>
+    <div><span class="lab">Where, when</span><p>Global, a file per country. 2015–2030 (later years are projections; an early release)</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://data.worldpop.org/GIS/Population/Global_2015_2030/R2025A/" target="_blank" rel="noopener">Files</a>. EE: <code>WorldPop/GP/100m/R2025A/v1/pop</code>. CC BY 4.0.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-ghsl-built-up-surface-volume-and-height" data-fit="context" data-people="0">
+  <header><h3><a href="https://human-settlement.emergency.copernicus.eu/ghs_buS2023.php" target="_blank" rel="noopener">GHSL built-up surface, volume and height</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Built-up area and volume per 100 m cell, every five years</p></div>
+    <div><span class="lab">Where, when</span><p>Global. 1975–2030 (2025 and 2030 are projections)</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://developers.google.com/earth-engine/datasets/catalog/JRC_GHSL_P2023A_GHS_BUILT_S" target="_blank" rel="noopener">EE</a>: <code>JRC/GHSL/P2023A/GHS_BUILT_S</code>. Free; name the source.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-relative-wealth-index-meta" data-fit="context" data-people="0">
+  <header><h3><a href="https://data.humdata.org/dataset/relative-wealth-index" target="_blank" rel="noopener">Relative Wealth Index (Meta)</a></h3><span class="tags"><span class="fit context">Context</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Estimated wealth of each 2.4 km cell, compared with the rest of the country</p></div>
+    <div><span class="lab">Where, when</span><p>93 low- and middle-income countries, with the Philippines, Thailand, Cambodia, Bangladesh, Viet Nam. 2021</p></div>
+    <div><span class="lab">Get it</span><p>One CSV per country on the page. <b>NC</b> (CC BY-NC 4.0).</p></div>
+  </div>
+</article>
+<article class="ds" id="d-gem-global-exposure-model" data-fit="context" data-people="0">
+  <header><h3><a href="https://github.com/gem/global_exposure_model" target="_blank" rel="noopener">GEM Global Exposure Model</a></h3><span class="tags"><span class="fit context">Context</span><span class="mark nc">Non-commercial</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Number, type and value of buildings per province, for risk studies</p></div>
+    <div><span class="lab">Where, when</span><p>215 countries and territories</p></div>
+    <div><span class="lab">Get it</span><p>CSV on GitHub. <b>NC</b>; the 1 km version is on request.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-global-power-plant-database" data-fit="context" data-people="0">
+  <header><h3><a href="https://datasets.wri.org/dataset/globalpowerplantdatabase" target="_blank" rel="noopener">Global Power Plant Database</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Power plants as points, with fuel and size</p></div>
+    <div><span class="lab">Where, when</span><p>Global. No longer updated</p></div>
+    <div><span class="lab">Get it</span><p>EE: <code>WRI/GPPD/power_plants</code>. CC BY 4.0.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-global-dam-watch" data-fit="context" data-people="0">
+  <header><h3><a href="https://www.globaldamwatch.org/database" target="_blank" rel="noopener">Global Dam Watch</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>41,145 dams and 35,295 reservoir outlines</p></div>
+    <div><span class="lab">Where, when</span><p>Global. Version 1.0, 2024</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://figshare.com/articles/dataset/Global_Dam_Watch_database_version_1_0/25988293" target="_blank" rel="noopener">figshare</a>, 128 MB. EE: <code>projects/sat-io/open-datasets/GDW/GDW_BARRIERS_V1_0</code>. CC BY 4.0.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-riceatlas" data-fit="context" data-people="0">
+  <header><h3><a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/JE6R2R" target="_blank" rel="noopener">RiceAtlas</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Planting and harvest dates of rice by province: use it to choose your image dates</p></div>
+    <div><span class="lab">Where, when</span><p>Rice countries worldwide</p></div>
+    <div><span class="lab">Get it</span><p>Shapefiles, about 100 MB each. CC0.</p></div>
+  </div>
+</article>
+<article class="ds" id="d-planted-trees-wri" data-fit="context" data-people="0">
+  <header><h3><a href="https://www.wri.org/research/spatial-database-planted-trees-sdpt-version-2" target="_blank" rel="noopener">Planted trees (WRI)</a></h3><span class="tags"><span class="fit context">Context</span></span></header>
+  <div class="cols c3">
+    <div><span class="lab">What it gives</span><p>Planted forests and tree crops, with species where known. Put together from national sources of mixed quality</p></div>
+    <div><span class="lab">Where, when</span><p>158 countries. About 2020</p></div>
+    <div><span class="lab">Get it</span><p><a href="https://gfw2-data.s3.amazonaws.com/plantations/sdpt/sdpt_v2.zip" target="_blank" rel="noopener">Download</a>, 7.7 GB. CC BY 4.0.</p></div>
+  </div>
+</article>
+</section>
+
+  <section id="checked">
+    <div class="sec-head"><h2>How this list was checked</h2></div>
+    <div class="panel flat prose"><ul><li>Five research agents (Claude Opus) searched one theme each. Each one had to open every page it cites and note what it saw there.</li><li>Every link on this page was then opened again by a separate script (131 links, 26 November 2026). 124 answered. The other 7 are on three sites that refuse scripts but open in a browser: the Humanitarian Data Exchange, figshare and Harvard Dataverse. For those we confirmed the dataset, its title and its licence in the site's own data service or in the DOI register.</li><li>For the datasets on Zenodo, the title, licence and size were compared with Zenodo's own records. Every Earth Engine layer name was found on the page that documents it.</li><li>What was <b>not</b> checked: we did not download every file, and we did not test each dataset against SR. "SR fit" is a judgement from the size of the things mapped.</li></ul><p>Left out on purpose: datasets whose pictures have lost their coordinates (they cannot be matched with Sentinel-2), datasets that end before 2016, and datasets we could not download. Tell us if a link stops working.</p><p>The example decisions are invented for this workshop. Each dataset has its own licence and citation: see its page.</p>
+      <p class="small">The example decisions are invented for this workshop. Each dataset has its own licence and citation: see its page.</p>
+    </div>
+  </section>
+</main>
+<footer class="foot"></footer>
+<script src="../assets/site.js"></script>
+<script src="datasets.js"></script>
+</body>
+</html>

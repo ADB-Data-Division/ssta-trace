@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Super-resolution workshop · SSTA</title>
-<meta name="description" content="Links for the workshop on super-resolution satellite imagery, 26–27 November 2026: ideas board, project board, image service, notebooks, exercises and office hours.">
+<title>Super-resolution Satellite Imagery as a Regional Public Good for Sustainable Development</title>
+<meta name="description" content="Links for the workshop on super-resolution satellite imagery, 26–27 November 2026: ideas board, project board, image service, open datasets, notebooks, exercises and office hours.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
   background-size: 34px 34px; mask-image: linear-gradient(100deg, transparent 35%, #000 100%); -webkit-mask-image: linear-gradient(100deg, transparent 35%, #000 100%); }
 .hero > * { position: relative; z-index: 1; }
 .hero .eyebrow, .hero .eyebrow b { color: rgba(255, 255, 255, .85); }
-.hero h1 { color: #fff; font-size: 2.5rem; max-width: 18ch; }
+.hero h1 { color: #fff; font-size: 2.2rem; max-width: 30ch; line-height: 1.15; }
 .hero .lead { color: rgba(255, 255, 255, .92); max-width: 56ch; }
 .hero .row { margin-top: 8px; }
 .hero .btn { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .12); color: #fff; box-shadow: none; min-height: 42px; padding: 9px 18px; }
@@ -36,7 +36,7 @@ section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 7
 .oh .icon { width: 46px; height: 46px; border-radius: 12px; background: var(--wash-soft); color: var(--brand); display: grid; place-items: center; flex: none; }
 .oh .icon svg { width: 24px; height: 24px; }
 .oh .txt { flex: 1 1 320px; display: flex; flex-direction: column; gap: 3px; }
-@media (max-width: 640px) { .hero { padding: 28px 22px; border-radius: 16px; } .hero h1 { font-size: 1.8rem; } }
+@media (max-width: 640px) { .hero { padding: 28px 22px; border-radius: 16px; } .hero h1 { font-size: 1.5rem; } }
 </style>
 </head>
 <body>
@@ -44,8 +44,8 @@ section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 7
 <main class="wrap">
   <div class="hero">
     <div class="eyebrow">TA workshop · 26–27 November 2026 · ADB headquarters and online</div>
-    <h1>Super-resolution satellite imagery</h1>
-    <p class="lead">Everything for the workshop and the mini hackathon in one place: the boards, the image service, the notebooks, the exercises and office hours.</p>
+    <h1>Super-resolution Satellite Imagery as a Regional Public Good for Sustainable Development</h1>
+    <p class="lead">Everything for the workshop and the mini hackathon in one place: the boards, the image service, open datasets, the notebooks, the exercises and office hours.</p>
     <div class="row">
       <a class="btn go" href="ideas/" data-keep><i data-icon="bulb"></i>Open the ideas board</a>
       <a class="btn" href="sr/"><i data-icon="image"></i>Make an image</a>
@@ -75,17 +75,19 @@ section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 7
       </a>
     </div>
     <div class="tiles">
-      <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/hackathon/scenario/hackathon_scenario.ipynb" target="_blank" rel="noopener">
-        <span class="tag grey">Opens Google Colab</span>
-        <h3>Your scenario</h3>
-        <span>The hackathon notebook: is super-resolution a fit for your decision? Step by step, no coding.</span>
-        <span class="go">Open the notebook</span>
+      <a class="tile" href="datasets/">
+        <span class="icon"><i data-icon="data"></i></span>
+        <span class="tag grey">For your project</span>
+        <h3>Open datasets</h3>
+        <span>Open datasets by theme, from buildings and roads to farms, forests and coasts: to explore, or to check a map against. Each comes with a decision an office could test.</span>
+        <span class="go">Browse the datasets</span>
       </a>
-      <a class="tile" href="https://github.com/adb-sr/sr-client/blob/main/notebooks/hackathon/README.md" target="_blank" rel="noopener">
-        <span class="tag grey">Guide</span>
-        <h3>How the hackathon works</h3>
-        <span>The steps, team roles, the slide, and three tasks with measured results: informal settlements, land cover, field boundaries.</span>
-        <span class="go">Read the guide</span>
+      <a class="tile" href="https://excalidraw.com/#room=3b9714d4aa1342b0e657,jvy1OCuXChZAedLGoiZDKg" target="_blank" rel="noopener">
+        <span class="icon"><i data-icon="shapes"></i></span>
+        <span class="tag grey">Day 2 exercise</span>
+        <h3>Spot the differences</h3>
+        <span>A shared board with pairs of satellite images. Write what differs on a yellow note. Opens Excalidraw; no account needed.</span>
+        <span class="go">Open the board</span>
       </a>
     </div>
   </section>
@@ -104,7 +106,7 @@ section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 7
   </section>
 
   <section id="materials">
-    <div class="sec-head"><h2>Workshop materials</h2><p>The notebooks and exercises of day 1.</p></div>
+    <div class="sec-head"><h2>Workshop materials</h2><p>The notebooks and the exercises.</p></div>
     <div class="tiles">
       <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/demo1_super_resolution.ipynb" target="_blank" rel="noopener">
         <span class="icon"><i data-icon="notebook"></i></span>
@@ -124,7 +126,7 @@ section { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 7
         <span class="icon"><i data-icon="pen"></i></span>
         <span class="tag grey">In the browser</span>
         <h3>Exercises</h3>
-        <span>Trace the roads you can see on a Sentinel-2 image and on a super-resolved image.</span>
+        <span>Day 1: trace the roads you can see on a Sentinel-2 image and on a super-resolved image. Day 2: spot the differences between pairs of images.</span>
         <span class="go">Open the exercises</span>
       </a>
       <a class="tile" href="https://colab.research.google.com/github/adb-sr/sr-client/blob/main/notebooks/workshop.ipynb" target="_blank" rel="noopener">
