@@ -23,7 +23,7 @@ const OFFICE_HOURS = {
 const SIGNUP_FORM = "";
 
 // The super-resolution service the "Make an image" page talks to.
-const SR_SERVICE = "https://sr-service-dev--sr-service-api.modal.run";
+const SR_SERVICE = "https://s-mueller-consult-dev--sr-service-api.us-east.modal.run";
 
 // Who to ask. Empty = "ask the workshop team".
 const CONTACT = { name: "", email: "" };

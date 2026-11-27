@@ -34,7 +34,10 @@ const WARN = {      // the service's warning codes in the words of the workshop
   missing_tiles: ["Part of the area could not be processed", "That part is empty in the image. Make the image again.", v => `${v} tile${v === 1 ? "" : "s"}`],
 };
 
-let key = remember("sr-key"), me = null, map = null, rect = null, sel = { ready: null, lat: 14.5878, lon: 121.0585, km: 2 };
+// A key belongs to one service: it is kept under the name of that service, so that a key from an earlier service
+// address is not tried (and refused) after the address in config.js changes.
+const KEY_AT = "sr-key@" + API.replace(/^https?:\/\//, "");
+let key = remember(KEY_AT), me = null, map = null, rect = null, sel = { ready: null, lat: 14.5878, lon: 121.0585, km: 2 };
 let view = "", current = null, pollTimer = null, estTimer = null, estSeq = 0, jobsTimer = null;
 
 // ---------------------------------------------------------------- talking to the service
@@ -75,13 +78,13 @@ async function copyText(text, button) {
 
 // ---------------------------------------------------------------- connecting, and which part of the page shows
 function leave(message) {
-  key = ""; me = null; forget("sr-key"); clearTimeout(pollTimer); clearTimeout(estTimer); clearTimeout(jobsTimer); current = null;
+  key = ""; me = null; forget(KEY_AT); clearTimeout(pollTimer); clearTimeout(estTimer); clearTimeout(jobsTimer); current = null;
   $("app").hidden = $("tabs").hidden = $("acct").hidden = true; $("signin").hidden = false;
   $("cErr").hidden = !message; $("cErr").textContent = message || "";
 }
 async function enter() {
   me = await api("GET", "/v1/me");
-  remember("sr-key", key);
+  remember(KEY_AT, key);
   $("signin").hidden = true; $("app").hidden = $("tabs").hidden = $("acct").hidden = false;
   showAccount();
   const max = Math.max(0.5, Math.floor((me.limits.max_area_km || 5) * 2) / 2);
