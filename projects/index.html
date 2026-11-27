@@ -39,7 +39,7 @@
   <div class="stack">
     <div class="eyebrow"><b>Mini hackathon</b> · From ideas to projects</div>
     <h1>Project board</h1>
-    <p class="lead">Turn an idea into a project: say what you want to find out, where, and what you need. Then others can join your team.</p>
+    <p class="lead">Turn an idea into a project: describe the problem, why it matters, and where. Then others can join your team.</p>
   </div>
   <div class="row spread">
     <div class="row">
@@ -60,9 +60,8 @@
     <div class="ideas-list" id="fromList"></div>
   </div>
   <label>Project name<input id="fTitle" maxlength="100" required placeholder="e.g. New houses on protected farmland"></label>
-  <label>What do you want to find out or decide? <textarea id="fWhat" maxlength="1000" rows="4" required placeholder="The decision the image should support, what the image must show, and how you would know it worked."></textarea></label>
+  <label>The problem, and why it matters <textarea id="fWhat" maxlength="1000" rows="4" required placeholder="What is the problem, who is affected, and which decision would a sharper image support?"></textarea></label>
   <label>Where? <span class="hint">place or area, and dates if they matter</span><input id="fWhere" maxlength="250" placeholder="e.g. Science City of Muñoz, Nueva Ecija, dry season 2026"></label>
-  <label>What do you need? <span class="hint">people, skills, data</span><textarea id="fNeed" maxlength="500" rows="2" placeholder="e.g. Someone who knows QGIS; the farmland zoning map"></textarea></label>
   <label>Link <span class="hint">optional: slides, notebook, shared folder</span><input id="fLink" type="url" maxlength="400" placeholder="https://"></label>
   <div class="fields" id="leadFields">
     <label>Your name<input id="fName" maxlength="60" required></label>
@@ -139,9 +138,8 @@ function render() {
     return el("article", { class: "project" + (me ? " mine" : ""), id: "p-" + p.p },
       el("h2", { text: p.title }),
       el("dl", null,
-        el("div", null, el("dt", { text: "What we want to find out" }), el("dd", { text: p.what })),
+        el("div", null, el("dt", { text: "The problem, and why it matters" }), el("dd", { text: p.what })),
         p.where ? el("div", null, el("dt", { text: "Where" }), el("dd", { text: p.where })) : null,
-        p.need ? el("div", null, el("dt", { text: "What we need" }), el("dd", { text: p.need })) : null,
         link ? el("div", null, el("dt", { text: "Link" }), el("dd", null, el("a", { href: link, target: "_blank", rel: "noopener", text: link.replace(/^https?:\/\//, "").slice(0, 60) }))) : null,
         el("div", null, el("dt", { text: `Team (${members.length})` }),
           el("dd", { class: "team" }, members.length ? members.map(m => el("span", { class: "member" + (m.by === DEVICE ? " me" : "") }, m.name, m.org ? el("small", { text: " · " + m.org }) : null))
@@ -160,7 +158,7 @@ function openProject(p, note) {
   $("pTitle").textContent = p ? "Edit the project" : "Start a project";
   $("fTitle").value = p ? p.title : note ? note.text.split("\n")[0].slice(0, 100) : "";
   $("fWhat").value = p ? p.what : note ? note.text : "";
-  $("fWhere").value = p ? p.where : ""; $("fNeed").value = p ? p.need : ""; $("fLink").value = p ? p.link : "";
+  $("fWhere").value = p ? p.where : ""; $("fLink").value = p ? p.link : "";
   $("leadFields").hidden = !!p; $("fName").required = $("fOrg").required = !p;
   $("fName").value = remember("ssta-person"); $("fOrg").value = remember("ssta-org");
   $("pDelete").hidden = !p;
@@ -178,7 +176,7 @@ $("pCancel").onclick = () => $("pDlg").close();
 $("pDelete").onclick = () => { if (editing && confirm(`Remove the project “${editing.title}” for everyone?`)) { log.add("proj.del", { p: editing.p }); $("pDlg").close(); } };
 $("pForm").addEventListener("submit", e => {
   e.preventDefault();
-  const f = { title: $("fTitle").value.trim(), what: $("fWhat").value.trim(), where: $("fWhere").value.trim(), need: $("fNeed").value.trim(), link: safeUrl($("fLink").value) };
+  const f = { title: $("fTitle").value.trim(), what: $("fWhat").value.trim(), where: $("fWhere").value.trim(), link: safeUrl($("fLink").value) };
   if (!f.title || !f.what) return;
   if (editing) log.add("proj.edit", { p: editing.p, ...f });
   else {

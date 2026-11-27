@@ -7,7 +7,7 @@ https://adb-data-division.github.io/ssta-trace/. Plain HTML, CSS and JavaScript:
 |---|---|---|
 | Landing page | `index.html` | All links and the office hours link (the questions and answers section is empty for now; the first draft is in commit 52cfe39) |
 | Ideas board | `ideas/` | A whiteboard: sticky notes that everyone can add, drag around, vote for and turn into a project; headings to name groups of notes |
-| Project board | `projects/` | Projects with a goal, a place and needs; people join with name and affiliation |
+| Project board | `projects/` | Projects with a problem and why it matters, and a place; people join with name and affiliation |
 | Image service | `sr/` | A page in front of the super-resolution service: place, date, options, price check, viewer (Sentinel-2 inputs, stage 1, stage 2, validity mask), warnings, downloads |
 | Exercises | `exercises/` | List of exercises; the road tracing (day 1) is at `exercises/trace/` (`results.html` is the presenter view); "Spot the differences" (day 2) is a link to a live Excalidraw room |
 | Open datasets | `datasets/` | Open datasets by theme, with search and filters. `index.html` is built from `notebooks/hackathon/DATASETS.md` of the sr-client repo by `build_datasets.py` (kept outside this repo): change the list there, not here |
