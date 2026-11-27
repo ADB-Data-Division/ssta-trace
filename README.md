@@ -67,6 +67,7 @@ notebooks, so images that already exist come back at once and free.
 |---|---|---|
 | Stage 1 and stage 2 | The service's preview pictures, shown as plain images from the file store | yes, **except on networks that block the file store** (the ADB wifi blocks `backblazeb2.com`, found on 27 November 2026) |
 | Sentinel-2 inputs (one image per date, click to show) | Read by the page from the public Sentinel-2 archive on AWS (`sentinel-cogs`, the files the service itself uses), cut to the job's frame; about 5 MB per image | yes |
+| Small pictures of the Sentinel-2 images on the "New image" tab, before an image is made | Read by the page from the same archive: the ready-made true-colour file (`TCI.tif`) at 20 m, cut to the chosen area; about 0.7 MB per picture, the 18 nearest to the date at once, the rest on a click | yes |
 | Warnings with the measured values | The service (`GET /v1/jobs/{id}`) | yes |
 | Validity mask, shares of valid / weak / empty area, the exact images used, `lr_reference.tif` as a layer, saving a picture with one click | The job's own files in the file store (Backblaze B2 bucket of the service) | only after the bucket allows this site, or the service hands out files itself (below) |
 
@@ -85,7 +86,8 @@ stage 1 and stage 2 show on networks that block the store, and the validity mask
 one-click saving work everywhere, without the CORS rule on the bucket.
 
 The service needs that route for this to work. Until it has it, the page tells people on such a network that the
-file store is blocked, and still shows the Sentinel-2 inputs. The route in the service's `api.py`, next to `results`:
+file store is blocked, still shows the Sentinel-2 inputs, and offers Colab instead: a button copies the Python code
+for this image (with the person's key), a link opens a new Colab notebook to paste it into. The route in the service's `api.py`, next to `results`:
 
     @app.get("/v1/jobs/{job_id}/files/{name}")
     def result_file(job_id: str, name: str, caller: Caller, db: Db) -> Response:

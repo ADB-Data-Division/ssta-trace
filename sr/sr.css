@@ -200,3 +200,26 @@ label.inline select { width: auto; padding: 3px 8px; min-height: 30px; font-size
   .vbar { padding: 8px; } label.inline select { max-width: 150px; }
   .jobrow { padding: 12px 14px; gap: 10px; } .jobrow .arrow { display: none; }
 }
+
+/* small pictures of the Sentinel-2 images on the "New image" page */
+.tl .dot { transition: scale .12s; }
+.tl .dot.hot { opacity: 1 !important; background: var(--brand); scale: 1.6; z-index: 1; }
+.thumbbox { display: flex; flex-direction: column; gap: 8px; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.thumb { padding: 0; min-height: 0; gap: 0; flex-direction: column; align-items: stretch; justify-content: flex-start; overflow: hidden; border-color: var(--line); border-radius: 9px; text-align: left; font-weight: 400; }
+.thumb:hover:not(:disabled) { border-color: var(--brand); background: var(--surface); }
+.thumb .pic { aspect-ratio: 1; background: #e6eaf0; display: grid; place-items: center; color: var(--muted); font-size: .74rem; font-weight: 500; overflow: hidden; }
+.thumb .pic canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .pic.later span { text-decoration: underline; color: var(--title); }
+.thumb .meta { display: flex; flex-direction: column; padding: 4px 7px 5px; line-height: 1.25; }
+.thumb .meta b { font-size: .8rem; font-weight: 600; color: var(--ink); }
+.thumb .meta small { font-size: .7rem; color: var(--muted); min-height: 1.25em; }
+.pic.wait, .tpic.wait { background: linear-gradient(100deg, #e6eaf0 40%, #f3f5f8 50%, #e6eaf0 60%) 0 0 / 300% 100%; animation: shimmer 1.3s linear infinite; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.thumbdlg { width: min(600px, calc(100vw - 24px)); }
+.thumbdlg .in { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.tpic { aspect-ratio: 1; max-height: 62vh; width: 100%; background: #0b1220; border-radius: 10px; overflow: hidden; display: grid; place-items: center; color: #cbd5e1; font-size: .9rem; margin: 0 auto; }
+.tpic canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+#jNet { display: flex; flex-direction: column; gap: 8px; }
+#jNet[hidden] { display: none; }
+#jNet p { max-width: none; }

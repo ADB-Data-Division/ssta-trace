@@ -272,7 +272,7 @@ async function estimate() {
       el("span", { class: "txt" }, el("b", { text: `About ${mins} minute${mins === 1 ? "" : "s"}` }), `At most this much of your budget.${left} Longer when many people make images at once.`)));
   }
   for (const w of e.warnings_likely || []) out.push(box("warn-box", (WARN[w.code] ? WARN[w.code][0] + ". " + WARN[w.code][1] : w.message)));
-  if (e.scenes && e.scenes.length) out.push(timeline(e.scenes, e.search_window, body.target_date));
+  if (e.scenes && e.scenes.length) out.push(timeline(e.scenes, e.search_window, body.target_date), thumbGrid(e.scenes, body.area, body.target_date));
   else if (!(e.problems && e.problems.length)) out.push(box("warn-box", "No Sentinel-2 image under the cloud limit was found around this date. Try another date, a longer search period or a higher cloud limit (advanced options)."));
   $("est").replaceChildren(...out);
   $("make").disabled = !(e.cached || e.submittable);
@@ -284,9 +284,105 @@ function timeline(scenes, win, target) {      // the Sentinel-2 images the servi
     el("div", { class: "cap" }, el("b", { text: `${scenes.length} Sentinel-2 image${scenes.length === 1 ? "" : "s"} on ${days} day${days === 1 ? "" : "s"}`, style: "color:var(--ink)" }), el("span", { text: "darker = fewer clouds" })),
     el("div", { class: "tl" }, el("i", { class: "target", style: `left:${x(target)}%`, title: "Your date: " + niceDate(target) }),
       scenes.map(s => { const c = s.cloud_cover === null || s.cloud_cover === undefined ? 50 : s.cloud_cover;
-        return el("i", { class: "dot", style: `left:${x(s.date)}%;opacity:${(1 - Math.min(c, 60) / 75).toFixed(2)}`, title: `${niceDate(s.date)} · ${Math.round(c)} % cloud` }); })),
+        return el("i", { class: "dot", dataset: { id: s.id }, style: `left:${x(s.date)}%;opacity:${(1 - Math.min(c, 60) / 75).toFixed(2)}`, title: `${niceDate(s.date)} · ${Math.round(c)} % cloud` }); })),
     el("div", { class: "cap" }, el("span", { text: shortDate(win[0]) }), el("span", { text: shortDate(win[1]) })));
 }
+// Small pictures of the Sentinel-2 images the service found, cut to the chosen area, so that clouds and haze over
+// the area itself can be judged before the image is made. They come from the public archive like the inputs of a
+// finished image, but from the ready-made true-colour file (TCI.tif) at 20 m: about 0.5 MB each instead of 5 MB.
+const THUMBS = new Map();      // "scene id|area" -> promise of a canvas
+let thumbQueue = [], thumbBusy = 0, thumbGen = 0, thumbShow = null;
+async function readThumb(id, area) {
+  const s = sceneParts(id); if (!s) throw new Error("unknown scene name");
+  await loadScript("../assets/vendor/geotiff.js");
+  const stop = new AbortController(), giveUp = setTimeout(() => stop.abort(), 45000);
+  try {
+    const tiff = await GeoTIFF.fromUrl(`${s.dir}/TCI.tif`, {}, stop.signal), full = await tiff.getImage(0), half = await tiff.getImage(1);
+    const [ox, oy] = full.getOrigin(), [c0, r0, w, h] = frameOn(area, ox, oy, s.zone, s.south), W = half.getWidth(), H = half.getHeight();
+    const f = Math.round(full.getWidth() / W);      // 2: the first reduced copy has 20 m pixels
+    const tc = Math.floor(c0 / f), tr = Math.floor(r0 / f), tw = Math.ceil(w / f), th = Math.ceil(h / f);
+    const x0 = Math.max(0, tc), y0 = Math.max(0, tr), x1 = Math.min(W, tc + tw), y1 = Math.min(H, tr + th);
+    const c = el("canvas", { width: tw, height: th }), ctx = c.getContext("2d"), d = ctx.createImageData(tw, th);
+    for (let i = 3; i < d.data.length; i += 4) d.data[i] = 255;
+    if (x1 > x0 && y1 > y0) {
+      const px = await half.readRasters({ window: [x0, y0, x1, y1], samples: [0, 1, 2], interleave: true, signal: stop.signal }), n = x1 - x0;
+      for (let r = 0; r < y1 - y0; r++) for (let q = 0; q < n; q++) {
+        const o = 4 * ((r + y0 - tr) * tw + q + x0 - tc), i = 3 * (r * n + q);
+        d.data[o] = px[i]; d.data[o + 1] = px[i + 1]; d.data[o + 2] = px[i + 2];
+      }
+    }
+    ctx.putImageData(d, 0, 0); return c;
+  } finally { clearTimeout(giveUp); }
+}
+function thumbOf(id, area) {
+  const k = id + "|" + area.join(",");
+  if (!THUMBS.has(k)) THUMBS.set(k, readThumb(id, area).catch(e => { THUMBS.delete(k); throw e; }));
+  return THUMBS.get(k);
+}
+function thumbRun() {      // three at a time; pictures asked for by an earlier form state are skipped
+  while (thumbBusy < 3 && thumbQueue.length) {
+    const q = thumbQueue.shift(); if (q.gen !== thumbGen) continue;
+    thumbBusy++; thumbOf(q.id, q.area).then(q.done, () => q.done(null)).finally(() => { thumbBusy--; thumbRun(); });
+  }
+}
+const dayMonth = d => new Date(String(d).slice(0, 10) + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+function fromTarget(date, target) {
+  const n = Math.round((Date.parse(date) - Date.parse(target)) / 864e5);
+  return n === 0 ? "on your date" : `${Math.abs(n)} day${Math.abs(n) === 1 ? "" : "s"} ${n < 0 ? "before" : "after"} your date`;
+}
+function thumbGrid(scenes, area, target) {
+  const gen = ++thumbGen; thumbQueue = [];
+  const t = Date.parse(target), list = scenes.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  const near = list.slice().sort((a, b) => Math.abs(Date.parse(a.date) - t) - Math.abs(Date.parse(b.date) - t));
+  const AUTO = 18, state = new Map();      // scene id -> { cell, pic, canvas, asked }
+  const cloud = s => s.cloud_cover === null || s.cloud_cover === undefined ? "" : `${Math.round(s.cloud_cover)} % cloud`;
+  const ask = (s, first) => {
+    const st = state.get(s.id); if (st.asked) return; st.asked = true;
+    st.pic.className = "pic wait"; st.pic.replaceChildren();
+    const q = { gen, id: s.id, area, done: c => {
+      st.canvas = c; st.pic.className = c ? "pic" : "pic fail"; st.pic.replaceChildren(c || el("span", { text: "No picture" }));
+      if (!c) st.asked = false;
+      if (thumbShow && thumbShow.gen === gen && thumbShow.id === s.id) thumbShow.draw();
+    } };
+    if (first) thumbQueue.unshift(q); else thumbQueue.push(q);
+    thumbRun();
+  };
+  const dot = (id, on) => { const d = document.querySelector(`.tl .dot[data-id="${id}"]`); if (d) d.classList.toggle("hot", on); };
+  const cells = list.map((s, i) => {
+    const pic = el("span", { class: "pic later" }, el("span", { text: "Show" }));
+    const cell = el("button", { type: "button", class: "thumb", title: `${niceDate(s.date)} · ${fromTarget(s.date, target)}`,
+      onclick: () => openThumb(i), onmouseenter: () => dot(s.id, true), onmouseleave: () => dot(s.id, false), onfocus: () => dot(s.id, true), onblur: () => dot(s.id, false) },
+      pic, el("span", { class: "meta" }, el("b", { text: dayMonth(s.date) }), el("small", { text: cloud(s) })));
+    state.set(s.id, { cell, pic, canvas: null, asked: false });
+    return cell;
+  });
+  for (const s of near.slice(0, AUTO)) ask(s, false);
+  const rest = list.length - Math.min(AUTO, list.length);
+  const more = rest > 0 ? el("button", { type: "button", class: "small-btn", onclick: e => { for (const s of near.slice(AUTO)) ask(s, false); e.currentTarget.remove(); } },
+    `Show the pictures of the other ${rest} image${rest === 1 ? "" : "s"}`) : null;
+  function openThumb(i) {
+    const s = list[i], st = state.get(s.id); ask(s, true);
+    thumbShow = { gen, id: s.id, draw: () => {
+      const big = $("tPic");
+      if (st.canvas) { const c = el("canvas", { width: st.canvas.width, height: st.canvas.height }); c.getContext("2d").drawImage(st.canvas, 0, 0); big.className = "tpic"; big.replaceChildren(c); }
+      else { big.className = "tpic " + (st.asked ? "wait" : "fail"); big.replaceChildren(el("span", { text: st.asked ? "Loading…" : "This picture could not be loaded." })); }
+    } };
+    $("tTitle").textContent = "Sentinel-2 · " + niceDate(s.date);
+    $("tCap").textContent = [fromTarget(s.date, target).replace(/^./, c => c.toUpperCase()), cloud(s) ? cloud(s) + " in the whole Sentinel-2 tile" : "", "shown at 20 m, half the detail the service works with"].filter(Boolean).join(" · ");
+    $("tPos").textContent = `${i + 1} of ${list.length}`;
+    $("tPrev").disabled = i === 0; $("tNext").disabled = i === list.length - 1;
+    $("tPrev").onclick = () => openThumb(i - 1); $("tNext").onclick = () => openThumb(i + 1);
+    thumbShow.draw();
+    if (!$("tDlg").open) $("tDlg").showModal();
+  }
+  return el("div", { class: "thumbbox" }, el("div", { class: "thumbs" }, cells),
+    el("div", { class: "row spread" }, el("span", { class: "small", text: "Each picture shows your area on that day. The cloud figure is for the whole Sentinel-2 tile (110 km), so trust the picture. Click one to enlarge it." }), more));
+}
+$("tClose").onclick = () => $("tDlg").close();
+$("tDlg").addEventListener("close", () => { thumbShow = null; });
+$("tDlg").addEventListener("keydown", e => { if (e.key === "ArrowLeft" && !$("tPrev").disabled) $("tPrev").click(); if (e.key === "ArrowRight" && !$("tNext").disabled) $("tNext").click(); });
+$("tDlg").addEventListener("click", e => { if (e.target === $("tDlg")) $("tDlg").close(); });      // a click beside the picture closes it
+
 $("make").onclick = async () => {
   let body;
   try { body = request(true); } catch (e) { $("est").replaceChildren(box("bad-box", e.message)); return; }
@@ -537,12 +633,22 @@ async function anyFile(job, name) {      // the store first, then the service
   }
   return serviceFile(job, name);
 }
+function pythonCode(id, k, best) {      // the same image with the Python client, e.g. in Colab (Google's servers reach the file store)
+  return `%pip install -q "sr-client[geo,viz] @ git+https://github.com/adb-sr/sr-client@v0.1.0"\nfrom sr_client import SRClient\n\nsr = SRClient("${k}", url="${API}")\njob = sr.job("${id}")\njob.show()                          # the pictures\nimage = job.open("${best}")   # xarray, reflectance 0 to 1\njob.download("results/")            # every file`;
+}
+const COLAB_NEW = "https://colab.research.google.com/#create=true";
 function blockedNote(job) {
   if (current !== job) return;
+  const best = job.files && job.files["stage2_sr.tif"] ? "stage2_sr.tif" : "stage1_sr.tif";
   $("jNet").hidden = false;
-  $("jNet").replaceChildren(el("b", { text: "This network blocks the file store of the service. " }),
-    "The stage 1 and stage 2 images are kept at backblazeb2.com, and this network does not let them through, so they cannot be shown or downloaded here. ",
-    "Sentinel-2 still shows. Use another network (for example a phone hotspot), or open the image with the Python code below in Colab.");
+  $("jNet").replaceChildren(
+    el("p", null, el("b", { text: "This network blocks the file store of the service. " }),
+      "The stage 1 and stage 2 images are kept at backblazeb2.com, and this network does not let them through, so they cannot be shown or downloaded here. Sentinel-2 still shows."),
+    el("p", null, el("b", { text: "See the image in Google Colab instead: " }), "copy the code, open a new Colab notebook, paste the code into the first cell and run it. The code holds your key and this image. You need a Google account."),
+    el("div", { class: "row" },
+      el("button", { type: "button", class: "small-btn", onclick: e => copyText(pythonCode(job.id, key, best), e.currentTarget) }, icon("copy"), "1. Copy the code for this image"),
+      el("a", { class: "btn small-btn", href: COLAB_NEW, target: "_blank", rel: "noopener" }, icon("code"), "2. Open a new Colab notebook"),
+      el("span", { class: "small", text: "Another network, for example a phone hotspot, also works." })));
 }
 function previewLayer(job, k, file) {      // one preview picture: from the store, or through the service when the store does not answer
   const img = el("img", { alt: LAYER[k], draggable: false });
@@ -814,7 +920,7 @@ function fillFiles(info) {
   $("fTif").replaceChildren(...FILES.filter(([name]) => f[name]).map(([name, what]) => row(name, what,
     link(name, name), el("button", { type: "button", class: "small-btn", onclick: e => copyText(f[name], e.currentTarget) }, "Copy link"))));
   const best = f["stage2_sr.tif"] ? "stage2_sr.tif" : "stage1_sr.tif";
-  const code = k => `%pip install -q "sr-client[geo,viz] @ git+https://github.com/adb-sr/sr-client@v0.1.0"\nfrom sr_client import SRClient\n\nsr = SRClient("${k}", url="${API}")\njob = sr.job("${info.id}")\njob.show()                          # the pictures\nimage = job.open("${best}")   # xarray, reflectance 0 to 1\njob.download("results/")            # every file`;
+  const code = k => pythonCode(info.id, k, best);
   $("fCode").textContent = code("YOUR_KEY");
   $("fCopy").onclick = e => copyText(code(key), e.currentTarget);
 }
