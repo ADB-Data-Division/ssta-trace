@@ -65,16 +65,46 @@ notebooks, so images that already exist come back at once and free.
 
 | What the page shows | Where it comes from | Works today |
 |---|---|---|
-| Stage 1 and stage 2 | The service's preview pictures, shown as plain images | yes |
+| Stage 1 and stage 2 | The service's preview pictures, shown as plain images from the file store | yes, **except on networks that block the file store** (the ADB wifi blocks `backblazeb2.com`, found on 27 November 2026) |
 | Sentinel-2 inputs (one image per date, click to show) | Read by the page from the public Sentinel-2 archive on AWS (`sentinel-cogs`, the files the service itself uses), cut to the job's frame; about 5 MB per image | yes |
 | Warnings with the measured values | The service (`GET /v1/jobs/{id}`) | yes |
-| Validity mask, shares of valid / weak / empty area, the exact images used, `lr_reference.tif` as a layer, saving a picture with one click | The job's own files in the file store (Backblaze B2 bucket of the service) | only after the bucket allows this site |
+| Validity mask, shares of valid / weak / empty area, the exact images used, `lr_reference.tif` as a layer, saving a picture with one click | The job's own files in the file store (Backblaze B2 bucket of the service) | only after the bucket allows this site, or the service hands out files itself (below) |
 
 To allow it, add a CORS rule to the bucket: in the Backblaze web console open the bucket's "CORS Rules", choose
 "Share everything in this bucket with this one origin", enter `https://adb-data-division.github.io`, and apply it to
 the S3-compatible API (or both). The page notices by itself: it tries to read `manifest.json` of the job and uses
 the service's files when that works. The rule only lets this site's pages read files through links that are
 already signed; it does not make anything public.
+
+### Files through the service, for networks that block the file store
+
+Every result file has a second way to the page: `GET <service>/v1/jobs/<job id>/files/<file name>` with the key
+(`Authorization: Bearer …`), answering with the bytes of that file. The page tries the file store first and this
+address second (pictures: at once when the store refuses, after 4 seconds when it does not answer). With it,
+stage 1 and stage 2 show on networks that block the store, and the validity mask, the exact images used and
+one-click saving work everywhere, without the CORS rule on the bucket.
+
+The service needs that route for this to work. Until it has it, the page tells people on such a network that the
+file store is blocked, and still shows the Sentinel-2 inputs. The route in the service's `api.py`, next to `results`:
+
+    @app.get("/v1/jobs/{job_id}/files/{name}")
+    def result_file(job_id: str, name: str, caller: Caller, db: Db) -> Response:
+        """One published file through the API, for networks that block the object store."""
+        job = own_job(db, caller, job_id)
+        files_of = job.cached_from or job.id
+        try:
+            manifest = json.loads(deps.store.get(out_key(files_of, "manifest.json")))
+            if name not in manifest["files"] or ("stage2" in name and "2" not in job.params["stages"]):
+                raise HTTPException(404, "no such file")
+            data = deps.store.get(out_key(files_of, name))
+        except NotFound:
+            raise HTTPException(404, "no such file") from None
+        kind = "image/png" if name.endswith(".png") else "image/tiff" if name.endswith(".tif") else "application/json"
+        return Response(data, media_type=kind, headers={"Cache-Control": "private, max-age=3600"})
+
+(`Response` from `fastapi`. The API's CORS settings already allow the `Authorization` header from any site.)
+`mock_api.py` of the tests has the same route (`VIA_API=1`); `t_sr_blocked.py` tests the page with the store
+open, blocked and silent.
 
 ## Collecting tracing results (Google Sheet, about 5 minutes)
 

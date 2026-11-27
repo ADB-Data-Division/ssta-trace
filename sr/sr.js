@@ -317,7 +317,7 @@ async function openJob(id) {
   clearTimeout(pollTimer);
   current = { id, info: null, files: null, aux: null, shown: -1, touched: false };
   vReset();
-  $("jBody").hidden = true; $("files").hidden = true; $("dPanel").hidden = true;
+  $("jBody").hidden = true; $("files").hidden = true; $("dPanel").hidden = true; $("jNet").hidden = true;
   $("jTitle").textContent = labelOf(id) || "Your image"; $("jSummary").textContent = ""; $("jSteps").replaceChildren(); $("jMsg").replaceChildren();
   $("jStatus").textContent = "Loading…"; $("jStatus").className = "chip"; $("jCancel").hidden = $("jUpgrade").hidden = true; $("jAgain").hidden = true; $("jCredit").textContent = "";
   await poll(id);
@@ -511,6 +511,72 @@ viewer.addEventListener("dblclick", e => { if (e.target.closest(".vdivider")) re
 })();
 
 // ---------------------------------------------------------------- one image: results
+// Result files are in the service's file store (signed links). Some networks block that store, and the store does
+// not let a page read file contents unless its CORS rule names this site. So every file has a second way: through
+// the service itself (GET /v1/jobs/<id>/files/<name>, with the key). What works is found out once and remembered
+// here: read = the page can read a file from the store, img = pictures from the store show, service = the service
+// hands out files. null = not tried yet.
+const SRC = { read: null, img: null, service: null };
+async function timed(url, opts, ms) {      // fetch that gives up when no answer starts within ms (a blocking network may never answer)
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  try { return await fetch(url, { ...opts, signal: c.signal }); } finally { clearTimeout(t); }
+}
+async function serviceFile(job, name) {
+  if (SRC.service === false) throw new Error("the service does not hand out files");
+  let r;
+  try { r = await timed(`${API}/v1/jobs/${job.id}/files/${encodeURIComponent(name)}`, { headers: { Authorization: "Bearer " + key } }, 30000); }
+  catch (e) { throw new Error("no answer from the service"); }
+  if (r.ok) { SRC.service = true; return r; }
+  if (SRC.service === null && (r.status === 404 || r.status === 405)) SRC.service = false;      // a service without this address
+  throw new Error("file not available (" + r.status + ")");
+}
+async function anyFile(job, name) {      // the store first, then the service
+  if (SRC.read !== false && job.files && job.files[name]) {
+    try { const r = await timed(job.files[name], {}, 10000); if (!r.ok) throw new Error(String(r.status)); SRC.read = true; return r; }
+    catch (e) { if (SRC.read === null) SRC.read = false; }
+  }
+  return serviceFile(job, name);
+}
+function blockedNote(job) {
+  if (current !== job) return;
+  $("jNet").hidden = false;
+  $("jNet").replaceChildren(el("b", { text: "This network blocks the file store of the service. " }),
+    "The stage 1 and stage 2 images are kept at backblazeb2.com, and this network does not let them through, so they cannot be shown or downloaded here. ",
+    "Sentinel-2 still shows. Use another network (for example a phone hotspot), or open the image with the Python code below in Colab.");
+}
+function previewLayer(job, k, file) {      // one preview picture: from the store, or through the service when the store does not answer
+  const img = el("img", { alt: LAYER[k], draggable: false });
+  let shown = false, direct = "wait", service = "no", from = "store";
+  const drop = () => {
+    if (shown || direct !== "failed" || service !== "failed") return;
+    if (layerEls[k] === img) { delete layerEls[k]; if (current === job) fillView(); }
+    blockedNote(job);
+  };
+  const viaService = async () => {
+    if (shown || service !== "no") return;
+    service = "wait";
+    try {
+      const url = URL.createObjectURL(await (await serviceFile(job, file)).blob());
+      if (shown) { URL.revokeObjectURL(url); return; }
+      from = "service"; service = "ok"; img.src = url;
+    } catch (e) { service = "failed"; drop(); }
+  };
+  img.addEventListener("load", () => {
+    shown = true; if (from === "store") SRC.img = true;
+    if (current === job) vSize(img.naturalWidth, img.naturalHeight, "preview");
+  });
+  img.addEventListener("error", () => {
+    if (from === "service") { service = "failed"; direct = "failed"; drop(); return; }
+    direct = "failed"; SRC.img = false; viaService(); drop();
+  });
+  if (SRC.img === false && SRC.service) { direct = "failed"; viaService(); }      // already known on this network: do not wait for the store again
+  else {
+    img.src = job.files[file];
+    setTimeout(viaService, 4000);                                                 // no picture after 4 s: ask the service as well
+    setTimeout(() => { if (!shown && service === "failed") { direct = "failed"; SRC.img = false; drop(); } }, 30000);
+  }
+  return img;
+}
 async function showResults(job, info) {
   let res;
   try { res = await api("GET", `/v1/jobs/${info.id}/results`); } catch (e) { return false; }
@@ -518,9 +584,7 @@ async function showResults(job, info) {
   const f = res.files; job.files = f;
   for (const [k, file] of [["1", "stage1_preview.png"], ["2", "stage2_preview.png"]]) {
     if (!f[file] || layerEls[k]) continue;
-    const img = el("img", { alt: LAYER[k], draggable: false });
-    img.addEventListener("load", () => { if (current === job) vSize(img.naturalWidth, img.naturalHeight, "preview"); });
-    img.src = f[file]; layerEls[k] = img;
+    layerEls[k] = previewLayer(job, k, file);
   }
   fillView(); fillFiles(info); $("files").hidden = false;
   $("jCredit").textContent = res.attribution ? res.attribution + ". Place names and the map: © OpenStreetMap contributors." : "";
@@ -533,8 +597,8 @@ function loadScript(src) {
 async function loadAux(job, info, f) {      // everything around the two previews: inputs, validity, the list of images used
   const a = job.aux = { store: null, manifest: null, scenes: [], from: "", cover: null, s2: "", s2Label: "", want: "", cache: {}, ref: null, problem: "" };
   const mine = () => current === job;
-  try { const r = await fetch(f["manifest.json"]); if (!r.ok) throw new Error(String(r.status)); a.manifest = await r.json(); a.store = true; }
-  catch (e) { a.store = false; }      // the file store does not let the browser read: the page works without
+  try { a.manifest = await (await anyFile(job, "manifest.json")).json(); a.store = true; }
+  catch (e) { a.store = false; }      // neither the file store nor the service lets the page read files: it works without
   if (!mine()) return;
   if (a.store) {
     const m = a.manifest, tiles = m.tiles || [], primary = new Set((m.windows || []).map(w => w.primary_id));
@@ -543,7 +607,7 @@ async function loadAux(job, info, f) {      // everything around the two preview
     a.from = "manifest";
     if (m.coverage) a.cover = { valid: m.coverage.valid, low: m.coverage.low_diversity, nodata: m.coverage.nodata };
     fillFiles(info); showDetails(info);
-    loadReference(job, f["lr_reference.tif"]); loadValidity(job, f["validity.tif"]);
+    loadReference(job, "lr_reference.tif"); loadValidity(job, "validity.tif");
   } else {
     try {
       const p = info.params, e = await api("POST", "/v1/estimate", { area: p.area, target_date: p.target_date, stages: p.stages, time_window: p.time_window, max_cloud: p.max_cloud, min_clear: p.min_clear, n_revisits: p.n_revisits, tau: p.tau, seed: p.seed });
@@ -552,7 +616,7 @@ async function loadAux(job, info, f) {      // everything around the two preview
     if (!mine()) return;
   }
   a.scenes.sort((x, y) => x.date < y.date ? -1 : x.date > y.date ? 1 : 0);
-  showInputs(); showQuality();
+  showInputs(); showQuality(); fillFiles(info);
   if (!a.store && a.scenes.length) {      // show the image nearest to the date, the clearer one if two are equally near
     const t = Date.parse(info.params.target_date), near = a.scenes.slice().sort((x, y) => (Math.abs(Date.parse(x.date) - t) - Math.abs(Date.parse(y.date) - t)) || ((x.cloud || 0) - (y.cloud || 0)))[0];
     pickScene(job, near.id, false);
@@ -563,11 +627,11 @@ function s2Canvas(R, G, B, w, h) {
   const c = el("canvas", { width: w, height: h }), ctx = c.getContext("2d"), d = ctx.createImageData(w, h);
   s2Fill(R, G, B, w * h, d.data); ctx.putImageData(d, 0, 0); return c;
 }
-async function loadReference(job, url) {      // the service's own Sentinel-2 composite (lr_reference.tif)
+async function loadReference(job, name) {      // the service's own Sentinel-2 composite (lr_reference.tif)
   const a = job.aux;
   try {
     await loadScript("../assets/vendor/geotiff.js");
-    const r = await fetch(url); if (!r.ok) throw new Error(String(r.status));
+    const r = await anyFile(job, name);
     const tiff = await GeoTIFF.fromArrayBuffer(await r.arrayBuffer()), img = await tiff.getImage();
     const [R, G, B] = await img.readRasters({ samples: [0, 1, 2] });
     a.ref = s2Canvas(R, G, B, img.getWidth(), img.getHeight());
@@ -576,11 +640,11 @@ async function loadReference(job, url) {      // the service's own Sentinel-2 co
     if (!a.want) pickScene(job, "ref", false);
   } catch (e) { if (current === job && !a.want && a.scenes.length) pickScene(job, a.scenes[0].id, false); }
 }
-async function loadValidity(job, url) {
+async function loadValidity(job, name) {
   const a = job.aux;
   try {
     await loadScript("../assets/vendor/geotiff.js");
-    const r = await fetch(url); if (!r.ok) throw new Error(String(r.status));
+    const r = await anyFile(job, name);
     const tiff = await GeoTIFF.fromArrayBuffer(await r.arrayBuffer()), img = await tiff.getImage(), w = img.getWidth(), h = img.getHeight();
     const [cls] = await img.readRasters({ samples: [0] });
     if (current !== job) return;
@@ -717,32 +781,38 @@ function fileName(info, what) {
   const base = ($("jTitle").textContent || "image").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 40) || "image";
   return `${base}_${info.params.target_date}_${what}`;
 }
-async function saveAs(url, name, button) {      // only used when the file store lets the browser read the file
+// How a file is saved: "read" = the page reads it from the store and saves it under a good name; "service" = the same
+// through the service (pictures always, the large GeoTIFFs only when the store is blocked); "link" = the signed link
+// opens in a new tab.
+const saveWay = file => SRC.read ? "read" : SRC.service && (SRC.img === false || file.endsWith(".png")) ? "service" : "link";
+async function saveAs(job, file, name, button) {
   const old = [...button.childNodes]; button.textContent = "Downloading…";
-  try { const blob = await (await fetch(url)).blob(), a = el("a", { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000); }
-  catch (e) { window.open(url, "_blank", "noopener"); }
+  try {
+    const r = saveWay(file) === "read" ? await anyFile(job, file) : await serviceFile(job, file);
+    const blob = await r.blob(), a = el("a", { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+  } catch (e) { window.open(job.files[file], "_blank", "noopener"); }
   button.replaceChildren(...old);
 }
 function fillFiles(info) {
-  const job = current, f = job.files || {}, a = job.aux || {}, png = [], open = a.store === true;
+  const job = current, f = job.files || {}, a = job.aux || {}, png = [];
   const row = (title, sub, ...buttons) => el("div", { class: "file" }, el("span", { class: "what" }, el("b", { text: title }), sub ? el("small", { text: sub }) : null), el("span", { class: "row" }, ...buttons));
-  const link = (url, name, text) => {
-    const b = el("a", { class: "btn small-btn", href: url, target: "_blank", rel: "noopener", download: name }, icon("download"), text || "Download");
-    if (open) b.addEventListener("click", e => { e.preventDefault(); saveAs(url, name, b); });
+  const link = (file, name) => {
+    const b = el("a", { class: "btn small-btn", href: f[file], target: "_blank", rel: "noopener", download: name }, icon("download"), "Download");
+    b.addEventListener("click", e => { if (saveWay(file) !== "link") { e.preventDefault(); saveAs(job, file, name, b); } });
     return b;
   };
   for (const [k, file, what] of [["2", "stage2_preview.png", "stage2"], ["1", "stage1_preview.png", "stage1"]])
-    if (f[file]) png.push(row(LAYER[k], null, link(f[file], fileName(info, what) + ".png")));
+    if (f[file]) png.push(row(LAYER[k], null, link(file, fileName(info, what) + ".png")));
   if (layerEls.s2) png.push(row(a.s2Label || LAYER.s2, "enlarged to the same size, pixels kept",
     el("button", { type: "button", class: "small-btn", onclick: () => {      // enlarged 4 times without smoothing: the same size as the 2.5 m images
       const c = layerEls.s2, big = el("canvas", { width: c.width * 4, height: c.height * 4 }), ctx = big.getContext("2d");
       ctx.imageSmoothingEnabled = false; ctx.drawImage(c, 0, 0, big.width, big.height);
       const l = el("a", { href: big.toDataURL("image/png"), download: fileName(info, a.s2 === "ref" ? "sentinel2" : "sentinel2_" + ((a.scenes.find(s => s.id === a.s2) || {}).date || "")) + ".png" }); document.body.append(l); l.click(); l.remove();
     } }, icon("download"), "Download")));
-  if (!open && png.length) png.push(el("p", { class: "small", text: "A stage 1 or stage 2 picture opens in a new tab: right-click it (or press and hold on a phone) and choose “Save image”." }));
+  if (saveWay("x.png") === "link" && png.length) png.push(el("p", { class: "small", text: "A stage 1 or stage 2 picture opens in a new tab: right-click it (or press and hold on a phone) and choose “Save image”." }));
   $("fPng").replaceChildren(...png);
   $("fTif").replaceChildren(...FILES.filter(([name]) => f[name]).map(([name, what]) => row(name, what,
-    link(f[name], name), el("button", { type: "button", class: "small-btn", onclick: e => copyText(f[name], e.currentTarget) }, "Copy link"))));
+    link(name, name), el("button", { type: "button", class: "small-btn", onclick: e => copyText(f[name], e.currentTarget) }, "Copy link"))));
   const best = f["stage2_sr.tif"] ? "stage2_sr.tif" : "stage1_sr.tif";
   const code = k => `%pip install -q "sr-client[geo,viz] @ git+https://github.com/adb-sr/sr-client@v0.1.0"\nfrom sr_client import SRClient\n\nsr = SRClient("${k}", url="${API}")\njob = sr.job("${info.id}")\njob.show()                          # the pictures\nimage = job.open("${best}")   # xarray, reflectance 0 to 1\njob.download("results/")            # every file`;
   $("fCode").textContent = code("YOUR_KEY");
