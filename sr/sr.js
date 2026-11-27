@@ -34,10 +34,12 @@ const WARN = {      // the service's warning codes in the words of the workshop
   missing_tiles: ["Part of the area could not be processed", "That part is empty in the image. Make the image again.", v => `${v} tile${v === 1 ? "" : "s"}`],
 };
 
-// A key belongs to one service: it is kept under the name of that service, so that a key from an earlier service
-// address is not tried (and refused) after the address in config.js changes.
+// A key is kept under the name of the service it belongs to. A key saved before the address in config.js changed
+// ("sr-key") is tried once: the same service at a new address accepts it; another service refuses it, and the
+// page then asks for the email address without an error message.
 const KEY_AT = "sr-key@" + API.replace(/^https?:\/\//, "");
-let key = remember(KEY_AT), me = null, map = null, rect = null, sel = { ready: null, lat: 14.5878, lon: 121.0585, km: 2 };
+let earlier = !remember(KEY_AT) && Boolean(remember("sr-key"));
+let key = remember(KEY_AT) || remember("sr-key"), me = null, map = null, rect = null, sel = { ready: null, lat: 14.5878, lon: 121.0585, km: 2 };
 let view = "", current = null, pollTimer = null, estTimer = null, estSeq = 0, jobsTimer = null;
 
 // ---------------------------------------------------------------- talking to the service
@@ -59,7 +61,7 @@ async function api(method, path, body) {
   let data = null; try { data = await r.json(); } catch (e) {}
   if (!r.ok) {
     const err = new Error(detailOf(data, r.status)); err.status = r.status;
-    if (r.status === 401 && key) { leave("The key does not work (" + err.message + "). Connect again with your email address, or ask the workshop team."); }
+    if (r.status === 401 && key) { leave(earlier ? "" : "The key does not work (" + err.message + "). Connect again with your email address, or ask the workshop team."); }
     throw err;
   }
   return data;
@@ -78,13 +80,13 @@ async function copyText(text, button) {
 
 // ---------------------------------------------------------------- connecting, and which part of the page shows
 function leave(message) {
-  key = ""; me = null; forget(KEY_AT); clearTimeout(pollTimer); clearTimeout(estTimer); clearTimeout(jobsTimer); current = null;
+  key = ""; me = null; earlier = false; forget(KEY_AT); forget("sr-key"); clearTimeout(pollTimer); clearTimeout(estTimer); clearTimeout(jobsTimer); current = null;
   $("app").hidden = $("tabs").hidden = $("acct").hidden = true; $("signin").hidden = false;
   $("cErr").hidden = !message; $("cErr").textContent = message || "";
 }
 async function enter() {
   me = await api("GET", "/v1/me");
-  remember(KEY_AT, key);
+  remember(KEY_AT, key); earlier = false;
   $("signin").hidden = true; $("app").hidden = $("tabs").hidden = $("acct").hidden = false;
   showAccount();
   const max = Math.max(0.5, Math.floor((me.limits.max_area_km || 5) * 2) / 2);
